@@ -1,4 +1,3 @@
-Cannon Play-Bot
-
-Tanishq Gupta
-Rajbir Malik
+# Cannon Play-Bot
+- Tanishq Gupta
+- Rajbir Malik
