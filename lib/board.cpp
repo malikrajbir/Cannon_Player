@@ -241,12 +241,12 @@ public:
                     // Forward Move
                     xn = xo + 2*forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
-                        if(board[xn][yn] <= 0)
+                        if(board[xn][yn] == 0)
                             ans.pb(move_player({xo-forw, yo}, {xn, yn}));
                     // Backward Move
                     xn = xo - 2*forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
-                        if(board[xn][yn] <= 0)
+                        if(board[xn][yn] == 0)
                             ans.pb(move_player({xo+forw, yo}, {xn, yn}));
                     break;
                 }
@@ -255,12 +255,12 @@ public:
                     // Forward Move
                     yn = yo + 2*forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
-                        if(board[xn][yn] <= 0)
+                        if(board[xn][yn] == 0)
                             ans.pb(move_player({xo, yo-forw}, {xn, yn}));
                     // Backward move
                     yn = yo - 2*forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
-                        if(board[xn][yn] <= 0)
+                        if(board[xn][yn] == 0)
                             ans.pb(move_player({xo, yo+forw}, {xn, yn}));
                     break;
                 }
@@ -269,13 +269,13 @@ public:
                     xn = xo + 2*forw;
                     yn = yo - 2*forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
-                        if(board[xn][yn] <= 0)
+                        if(board[xn][yn] == 0)
                             ans.pb(move_player({xo-forw, yo+forw}, {xn, yn}));
                     // Backward move
                     xn = xo - 2*forw;
                     yn = yo + 2*forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
-                        if(board[xn][yn] <= 0)
+                        if(board[xn][yn] == 0)
                             ans.pb(move_player({xo+forw, yo-forw}, {xn, yn}));
                     break;
                 }
@@ -284,13 +284,13 @@ public:
                     xn = xo + 2*forw;
                     yn = yo + 2*forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
-                        if(board[xn][yn] <= 0)
+                        if(board[xn][yn] == 0)
                             ans.pb(move_player({xo-forw, yo-forw}, {xn, yn}));
                     // Backward move
                     xn = xo - 2*forw;
                     yn = yo - 2*forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
-                        if(board[xn][yn] <= 0)
+                        if(board[xn][yn] == 0)
                             ans.pb(move_player({xo+forw, yo+forw}, {xn, yn}));
                     break;
                 }
@@ -313,61 +313,61 @@ public:
             switch(_c.second) {
                 case 'H' : {
                     if(!(xo+3*forw < 0 || xo+3*forw >= _row))
-                        if(board[xo+3*forw][yo] < 0)
+                        if(board[xo+3*forw][yo] < 0 && board[xo+2*forw][yo] == 0)
                             ans.pb(remove_player({xo+3*forw, yo}));
                     if(!(xo-3*forw < 0 || xo-3*forw >= _row))
-                        if(board[xo-3*forw][yo] < 0)
+                        if(board[xo-3*forw][yo] < 0 && board[xo-2*forw][yo] == 0)
                             ans.pb(remove_player({xo-3*forw, yo}));
                     if(!(xo+4*forw < 0 || xo+4*forw >= _row))
-                        if(board[xo+4*forw][yo] < 0)
+                        if(board[xo+4*forw][yo] < 0 && board[xo+2*forw][yo] == 0)
                             ans.pb(remove_player({xo+4*forw, yo}));
                     if(!(xo-4*forw < 0 || xo-4*forw >= _row))
-                        if(board[xo-4*forw][yo] < 0)
+                        if(board[xo-4*forw][yo] < 0 && board[xo-2*forw][yo] == 0)
                             ans.pb(remove_player({xo-4*forw, yo}));
                     break;
                 }
                 case 'V' : {
                     if(!(yo+3*forw < 0 || yo+3*forw >= _col))
-                        if(board[xo][yo+3*forw] < 0)
+                        if(board[xo][yo+3*forw] < 0 && board[xo][yo+2*forw] == 0)
                             ans.pb(remove_player({xo, yo+3*forw}));
                     if(!(yo-3*forw < 0 || yo-3*forw >= _col))
-                        if(board[xo][yo-3*forw] < 0)
+                        if(board[xo][yo-3*forw] < 0 && board[xo][yo-2*forw] == 0)
                             ans.pb(remove_player({xo, yo-3*forw}));
                     if(!(yo+4*forw < 0 || yo+4*forw >= _row))
-                        if(board[xo][yo+4*forw] < 0)
+                        if(board[xo][yo+4*forw] < 0 && board[xo][yo+2*forw] == 0)
                             ans.pb(remove_player({xo, yo+4*forw}));
                     if(!(yo-4*forw < 0 || yo-4*forw >= _row))
-                        if(board[xo][yo-4*forw] < 0)
+                        if(board[xo][yo-4*forw] < 0 && board[xo][yo-2*forw] == 0)
                             ans.pb(remove_player({xo, yo-4*forw}));
                     break;
                 }
                 case 'L' : {
                     if(!(yo+3*forw < 0 || yo+3*forw >= _col || xo-3*forw < 0 || xo-3*forw >= _row))
-                        if(board[xo-3*forw][yo+3*forw] < 0)
+                        if(board[xo-3*forw][yo+3*forw] < 0  && board[xo-2*forw][yo+2*forw] == 0)
                             ans.pb(remove_player({xo-3*forw, yo+3*forw}));
                     if(!(yo-3*forw < 0 || yo-3*forw >= _col || xo+3*forw < 0 || xo+3*forw >= _row))
-                        if(board[xo+3*forw][yo-3*forw] < 0)
+                        if(board[xo+3*forw][yo-3*forw] < 0  && board[xo+2*forw][yo-2*forw] == 0)
                             ans.pb(remove_player({xo+3*forw, yo-3*forw}));
                     if(!(yo+4*forw < 0 || yo+4*forw >= _col || xo-4*forw < 0 || xo-4*forw >= _row))
-                        if(board[xo-4*forw][yo+4*forw] < 0)
+                        if(board[xo-4*forw][yo+4*forw] < 0  && board[xo-2*forw][yo+2*forw] == 0)
                             ans.pb(remove_player({xo-forw*4, yo+4*forw}));
                     if(!(yo-4*forw < 0 || yo-4*forw >= _col || xo+4*forw < 0 || xo+4*forw >= _row))
-                        if(board[xo+4*forw][yo-4*forw] < 0)
+                        if(board[xo+4*forw][yo-4*forw] < 0  && board[xo+2*forw][yo-2*forw] == 0)
                             ans.pb(remove_player({xo+4*forw, yo-4*forw}));
                     break;
                 }
                 case 'R' : {
                     if(!(yo+3*forw < 0 || yo+3*forw >= _col || xo+3*forw < 0 || xo+3*forw >= _row))
-                        if(board[xo+3*forw][yo+3*forw] < 0)
+                        if(board[xo+3*forw][yo+3*forw] < 0 && board[xo+2*forw][yo+2*forw] == 0)
                             ans.pb(remove_player({xo+3*forw, yo+3*forw}));
                     if(!(yo-3*forw < 0 || yo-3*forw >= _col || xo-3*forw < 0 || xo-3*forw >= _row))
-                        if(board[xo-3*forw][yo-3*forw] < 0)
+                        if(board[xo-3*forw][yo-3*forw] < 0 && board[xo-2*forw][yo-2*forw] == 0)
                             ans.pb(remove_player({xo-3*forw, yo-3*forw}));
                     if(!(yo+4*forw < 0 || yo+4*forw >= _col || xo+4*forw < 0 || xo+4*forw >= _row))
-                        if(board[xo+4*forw][yo+4*forw] < 0)
+                        if(board[xo+4*forw][yo+4*forw] < 0 && board[xo+2*forw][yo+2*forw] == 0)
                             ans.pb(remove_player({xo+forw*4, yo+4*forw}));
                     if(!(yo-4*forw < 0 || yo-4*forw >= _col || xo-4*forw < 0 || xo-4*forw >= _row))
-                        if(board[xo-4*forw][yo-4*forw] < 0)
+                        if(board[xo-4*forw][yo-4*forw] < 0 && board[xo-2*forw][yo-2*forw] == 0)
                             ans.pb(remove_player({xo-4*forw, yo-4*forw}));
                     break;
                 }
