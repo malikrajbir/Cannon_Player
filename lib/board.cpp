@@ -10,16 +10,14 @@
 using namespace std;
 typedef pair<short, short> pii;
 
-short forw; // for black, forw = -1 (one step forward decreases the row index) and for white, forw = 1 (one step forward
-            // increases the row index)
+short forw; // for black, forw = -1 (one step forward decreases the row index) and for white, forw = 1 (one step forward increases the row index)
+uint _row, _col;
 
 // Class for representing the game board
 class Board {
 private:
     vector<vector<short>> board; // Board
     unsigned int ssc, esc, stc, etc; // Counts (self soldiers, enemy soldiers, self towns, enemy towns)
-    unsigned int _row, _col; // Board dimensions
-    bool black; // Whether we are black/white player
 
     /*
      * Setting the original state of the board
@@ -33,26 +31,26 @@ private:
         // WHITE
         // Setting white town-halls
         ssc = esc = stc = etc = 0;
-        for(short i=0; i<this->_col; i+=2) {
+        for(short i=0; i<_col; i+=2) {
             board[0][i] = _set*2;
             etc++;
         }
         // Setting white soldiers
-        for(short i=1; i<this->_col; i+=2)
+        for(short i=1; i<_col; i+=2)
             for(short j=0; j<3; j++) {
                 board[j][i] = _set*1;
                 esc++;
             }
         // BLACK
         // Setting black town-halls
-        for(short i=1; i<this->_col; i+=2) {
-            board[this->_row-1][i] = -2*_set;
+        for(short i=1; i<_col; i+=2) {
+            board[_row-1][i] = -2*_set;
             stc++;
         }
         // Setting black soldiers
-        for(short i=0; i<this->_col; i+=2)
+        for(short i=0; i<_col; i+=2)
             for(short j=0; j<3; j++) {
-                board[this->_row - 1 - j][i] = -1*_set;
+                board[_row - 1 - j][i] = -1*_set;
                 ssc++;
             }
     }
@@ -65,16 +63,11 @@ public:
      * @param _row : rows on board
      * @param is_black : whether we are black/white
      */
-    Board(short _col, short _row, bool is_black = true) {
+    Board(bool is_black = true) {
         // Creating the vector
         this->board = vector<vector<short>>(_row, vector<short>(_col, 0));
-        // Setting parameters
-        this->_row = _row;
-        this->_col = _col;
         // Placing the pieces
         this->place(is_black);
-        // Setting identity
-        this->black = is_black;
     }
 
     /*
@@ -146,11 +139,11 @@ public:
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
         if(y-1 >= 0 && board[x][y-1] == _mark) return true;
-        if(y+1 < this->_col && board[x][y+1] == _mark) return true;
-        if(x+l_forw >= 0 && x+l_forw < this->_row) {
+        if(y+1 < _col && board[x][y+1] == _mark) return true;
+        if(x+l_forw >= 0 && x+l_forw < _row) {
             if(board[x+l_forw][y] == _mark) return true;
             if(y-1 >= 0 && board[x+l_forw][y-1] == _mark) return true;
-            if(y+1 < this->_col && board[x+l_forw][y+1] == _mark) return true;
+            if(y+1 < _col && board[x+l_forw][y+1] == _mark) return true;
         }
         return false;
     }
@@ -164,11 +157,11 @@ public:
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
         short new_x = x - 2 * l_forw;
-        if(new_x >= 0 && new_x < this->_row) {
+        if(new_x >= 0 && new_x < _row) {
             // * Multiplying with -_mark, to get the correct sign
             if(-_mark*board[new_x][y] <= 0) ans.pb(move_player({x, y}, {new_x, y}, _we));
             if(y-2 >= 0 && -_mark*board[new_x][y-2] <= 0) ans.pb(move_player({x, y}, {new_x, y-2}, _we));
-            if(y+2 < this->_col && -_mark*board[new_x][y+2] <= 0) ans.pb(move_player({x, y}, {new_x, y+2}, _we));
+            if(y+2 < _col && -_mark*board[new_x][y+2] <= 0) ans.pb(move_player({x, y}, {new_x, y+2}, _we));
         }
         return ans;
     }
@@ -182,13 +175,13 @@ public:
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
         if(y-1 >= 0 && -_mark*board[x][y-1] < 0) ans.pb(move_player({x, y}, {x, y-1}));
-        if(y+1 < this->_col && -_mark*board[x][y+1] < 0) ans.pb(move_player({x, y}, {x, y+1}));
+        if(y+1 < _col && -_mark*board[x][y+1] < 0) ans.pb(move_player({x, y}, {x, y+1}));
         short new_x = x + l_forw;
-        if(new_x >= 0 && new_x < this->_row) {
+        if(new_x >= 0 && new_x < _row) {
             // * Multiplying with -_mark, to get the correct sign
             if(-_mark*board[new_x][y] <= 0) ans.pb(move_player({x, y}, {new_x, y}, _we));
             if(y-1 >= 0 && -_mark*board[new_x][y-1] <= 0) ans.pb(move_player({x, y}, {new_x, y-1}, _we));
-            if(y+1 < this->_col && -_mark*board[new_x][y+1] <= 0) ans.pb(move_player({x, y}, {new_x, y+1}, _we));
+            if(y+1 < _col && -_mark*board[new_x][y+1] <= 0) ans.pb(move_player({x, y}, {new_x, y+1}, _we));
         }
         return ans;
     }
@@ -211,8 +204,8 @@ public:
         vector<Board> ans, tmp;
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
-        for(short i=0; i<this->_row; i++)
-            for(short j=0; j<this->_col; j++)
+        for(short i=0; i<_row; i++)
+            for(short j=0; j<_col; j++)
                 if(board[i][j] == -_mark) {
                     tmp = get_moves_for_soldiers(i, j, _we);
                     ans.insert(ans.end(), tmp.begin(), tmp.end());
@@ -227,8 +220,8 @@ public:
         vector<pair<pii, char>> cannons;
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         // Loop
-        for(short i=0; i<this->_row; i++)
-            for(short j=0; j<this->_col; j++)
+        for(short i=0; i<_row; i++)
+            for(short j=0; j<_col; j++)
                 if(board[i][j] == -_mark) {
                     // Searching for vertical cannons (Case : V)
                     if(i != 0 && i!=_row-1)
@@ -420,8 +413,8 @@ public:
      * prints the present state of board
      */
     void print_board() {
-        for(short i=0; i<this->_row; i++) {
-            for(short j=0; j<this->_col; j++)
+        for(short i=0; i<_row; i++) {
+            for(short j=0; j<_col; j++)
                 cout << flush << setw(5) << board[i][j] << " ";
             cout << "\n";
         }
@@ -441,8 +434,10 @@ uint score(Board& _b) {
 int main(int argc, char const *argv[]) {
     /* code */
     bool is_black = 1;
+    _row = 8;
+    _col = 8;
     forw = (is_black == true) ? -1 : 1;
-    Board c = Board(8, 8, is_black);
+    Board c = Board(is_black);
     c.print_board();
     vector<Board> v = c.get_all_cannon_moves(false);
     for(auto b : v) b.print_board();
