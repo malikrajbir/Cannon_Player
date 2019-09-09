@@ -103,10 +103,16 @@ public:
      * @param curr : current position of a player
      * @param next : new position of the player
      */
-    Board move_player(pii curr, pii next) {
+    Board move_player(pii curr, pii next, bool _we=true) {
         Board res = *this;
-        if(res.pos()[next.X][next.Y] == -1) res.esc--;
-        if(res.pos()[next.X][next.Y] == -2) res.etc--;
+        if(_we) {
+            if(res.pos()[next.X][next.Y] == -1) res.esc--;
+            if(res.pos()[next.X][next.Y] == -2) res.etc--;
+        }
+        else {
+            if(res.pos()[next.X][next.Y] == 1) res.ssc--;
+            if(res.pos()[next.X][next.Y] == 2) res.stc--;
+        }
         res.pos()[next.X][next.Y] = res.pos()[curr.X][curr.Y];
         res.pos()[curr.X][curr.Y] = 0;
         return res;
@@ -116,11 +122,19 @@ public:
      * Get new board object when cannon destroys an item
      * @param ps : position of the destroyed entity
      */
-    Board remove_player(pii ps) {
+    Board remove_player(pii ps, bool _we=true) {
         Board res = *this;
-        assert(res.pos()[ps.X][ps.Y] < 0);
-        if(res.pos()[ps.X][ps.Y] == -1) res.esc--;
-        if(res.pos()[ps.X][ps.Y] == -2) res.etc--;
+        if(_we) {
+            assert(res.pos()[ps.X][ps.Y] < 0);
+            if(res.pos()[ps.X][ps.Y] == -1) res.esc--;
+            if(res.pos()[ps.X][ps.Y] == -2) res.etc--;
+        }
+        else {
+            assert(res.pos()[ps.X][ps.Y] > 0);
+            if(res.pos()[ps.X][ps.Y] == 1) res.ssc--;
+            if(res.pos()[ps.X][ps.Y] == 2) res.stc--;
+
+        }
         res.pos()[ps.X][ps.Y] = 0;
         return res;
     }
@@ -128,13 +142,15 @@ public:
     /*
      * returns true if soldier present at (x, y) is adjacent to enemy soldier
      */
-    bool is_adjacent_to_enemy(int x, int y) {
-        if(y-1 >= 0 && board[x][y-1] == -1) return true;
-        if(y+1 < this->_col && board[x][y+1] == -1) return true;
-        if(x+forw >= 0 && x+forw < this->_row) {
-            if(board[x+forw][y] == -1) return true;
-            if(y-1 >= 0 && board[x+forw][y-1] == -1) return true;
-            if(y+1 < this->_col && board[x+forw][y+1] == -1) return true;
+    bool is_adjacent_to_enemy(int x, int y, bool _we=true) {
+        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
+        short l_forw = -_mark*forw; // Local forward
+        if(y-1 >= 0 && board[x][y-1] == _mark) return true;
+        if(y+1 < this->_col && board[x][y+1] == _mark) return true;
+        if(x+l_forw >= 0 && x+l_forw < this->_row) {
+            if(board[x+l_forw][y] == _mark) return true;
+            if(y-1 >= 0 && board[x+l_forw][y-1] == _mark) return true;
+            if(y+1 < this->_col && board[x+l_forw][y+1] == _mark) return true;
         }
         return false;
     }
@@ -142,14 +158,17 @@ public:
     /*
      * returns the board positions when soldier present at (x, y) retreats if it is adjacent to enemy
      */
-    vector<Board> get_positions_for_soldier_retreat(int x, int y) {
+    vector<Board> get_positions_for_soldier_retreat(int x, int y, bool _we=true) {
         vector<Board> ans;
-        if(!is_adjacent_to_enemy(x, y)) return ans;
-        short new_x = x - 2 * forw;
+        if(!is_adjacent_to_enemy(x, y, _we)) return ans;
+        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
+        short l_forw = -_mark*forw; // Local forward
+        short new_x = x - 2 * l_forw;
         if(new_x >= 0 && new_x < this->_row) {
-            if(board[new_x][y] <= 0) ans.pb(move_player({x, y}, {new_x, y}));
-            if(y-2 >= 0 && board[new_x][y-2] <= 0) ans.pb(move_player({x, y}, {new_x, y-2}));
-            if(y+2 < this->_col && board[new_x][y+2] <= 0) ans.pb(move_player({x, y}, {new_x, y+2}));
+            // * Multiplying with -_mark, to get the correct sign
+            if(-_mark*board[new_x][y] <= 0) ans.pb(move_player({x, y}, {new_x, y}, _we));
+            if(y-2 >= 0 && -_mark*board[new_x][y-2] <= 0) ans.pb(move_player({x, y}, {new_x, y-2}, _we));
+            if(y+2 < this->_col && -_mark*board[new_x][y+2] <= 0) ans.pb(move_player({x, y}, {new_x, y+2}, _we));
         }
         return ans;
     }
@@ -158,15 +177,18 @@ public:
      * returns the board positions when soldier present at (x, y) moves forward or sideways to an empty
      * space or captures an enemy piece
      */
-    vector<Board> get_positions_for_soldier_forward(int x, int y) {
+    vector<Board> get_positions_for_soldier_forward(int x, int y, bool _we=true) {
         vector<Board> ans;
-        if(y-1 >= 0 && board[x][y-1] < 0) ans.pb(move_player({x, y}, {x, y-1}));
-        if(y+1 < this->_col && board[x][y+1] < 0) ans.pb(move_player({x, y}, {x, y+1}));
-        short new_x = x + forw;
+        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
+        short l_forw = -_mark*forw; // Local forward
+        if(y-1 >= 0 && -_mark*board[x][y-1] < 0) ans.pb(move_player({x, y}, {x, y-1}));
+        if(y+1 < this->_col && -_mark*board[x][y+1] < 0) ans.pb(move_player({x, y}, {x, y+1}));
+        short new_x = x + l_forw;
         if(new_x >= 0 && new_x < this->_row) {
-            if(board[new_x][y] <= 0) ans.pb(move_player({x, y}, {new_x, y}));
-            if(y-1 >= 0 && board[new_x][y-1] <= 0) ans.pb(move_player({x, y}, {new_x, y-1}));
-            if(y+1 < this->_col && board[new_x][y+1] <= 0) ans.pb(move_player({x, y}, {new_x, y+1}));
+            // * Multiplying with -_mark, to get the correct sign
+            if(-_mark*board[new_x][y] <= 0) ans.pb(move_player({x, y}, {new_x, y}, _we));
+            if(y-1 >= 0 && -_mark*board[new_x][y-1] <= 0) ans.pb(move_player({x, y}, {new_x, y-1}, _we));
+            if(y+1 < this->_col && -_mark*board[new_x][y+1] <= 0) ans.pb(move_player({x, y}, {new_x, y+1}, _we));
         }
         return ans;
     }
@@ -174,10 +196,10 @@ public:
     /*
      * returns the soldier moves of a soldier present at (x, y)
      */
-    vector<Board> get_moves_for_soldiers(int x, int y) {
-        assert(board[x][y] == 1);
-        vector<Board> ans = get_positions_for_soldier_forward(x, y);
-        vector<Board> tmp = get_positions_for_soldier_retreat(x, y);
+    vector<Board> get_moves_for_soldiers(int x, int y, bool _we=true) {
+        assert(abs(board[x][y]) == 1);
+        vector<Board> ans = get_positions_for_soldier_forward(x, y, _we);
+        vector<Board> tmp = get_positions_for_soldier_retreat(x, y, _we);
         ans.insert(ans.end(), tmp.begin(), tmp.end());
         return ans;
     }
@@ -185,12 +207,14 @@ public:
     /*
      * returns all soldier moves of present state of board
      */
-    vector<Board> get_all_soldier_moves() {
+    vector<Board> get_all_soldier_moves(bool _we=true) {
         vector<Board> ans, tmp;
+        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
+        short l_forw = -_mark*forw; // Local forward
         for(short i=0; i<this->_row; i++)
             for(short j=0; j<this->_col; j++)
-                if(board[i][j] == 1) {
-                    tmp = get_moves_for_soldiers(i, j);
+                if(board[i][j] == -_mark) {
+                    tmp = get_moves_for_soldiers(i, j, _we);
                     ans.insert(ans.end(), tmp.begin(), tmp.end());
                 }
         return ans;
@@ -389,13 +413,22 @@ public:
     }
 };
 
+
+/*
+ * Scoring function for the board
+ * @param _b : input board
+ */
+uint score(Board& _b) {
+    return 0;
+}
+
 int main(int argc, char const *argv[]) {
     /* code */
     bool is_black = 1;
     forw = (is_black == true) ? -1 : 1;
     Board c = Board(8, 8, is_black);
     c.print_board();
-    vector<Board> v = c.get_all_cannon_moves();
-    // for(auto b : v) b.print_board();
+    vector<Board> v = c.get_all_soldier_moves(false);
+    for(auto b : v) b.print_board();
     return 0;
 }
