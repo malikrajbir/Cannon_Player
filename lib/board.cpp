@@ -223,25 +223,26 @@ public:
     /*
      * Find the cannons on the present board (keeps only the middle element and orientation)
      */
-    vector<pair<pii, char>> get_all_cannon_positions() {
+    vector<pair<pii, char>> get_all_cannon_positions(bool _we=true) {
         vector<pair<pii, char>> cannons;
+        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         // Loop
         for(short i=0; i<this->_row; i++)
             for(short j=0; j<this->_col; j++)
-                if(board[i][j] == 1) {
+                if(board[i][j] == -_mark) {
                     // Searching for vertical cannons (Case : V)
                     if(i != 0 && i!=_row-1)
-                        if(board[i-1][j] == 1 && board[i+1][j] == 1)
+                        if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
                             cannons.pb(pair<pii, char>({i, j}, 'V'));
                     // Searching for horizontal cannons (Case : H)
                     if(j != 0 && j != _col-1)
-                        if(board[i][j-1] == 1 && board[i][j+1] == 1)
+                        if(board[i][j-1] == -_mark && board[i][j+1] == -_mark)
                             cannons.pb(pair<pii, char>({i, j}, 'H'));
                     // Searching for diagonal cannons (Case : L or R)
                     if(!(j == 0 || i == 0 || j == _col-1 || i == _row-1)) {
-                        if(board[i+1][j-1] == 1 && board[i-1][j+1] == 1)
+                        if(board[i+1][j-1] == -_mark && board[i-1][j+1] == -_mark)
                             cannons.pb(pair<pii, char>({i, j}, 'L'));
-                        if(board[i-1][j-1] == 1 && board[i+1][j+1] == 1)
+                        if(board[i-1][j-1] == -_mark && board[i+1][j+1] == -_mark)
                             cannons.pb(pair<pii, char>({i, j}, 'R'));
                     }
                 }
@@ -251,10 +252,10 @@ public:
     /*
      * All possible movements for the cannons
      */ 
-    vector<Board> get_all_cannon_moves() {
-        // Accessing all cannons
-        vector<pair<pii, char>> cannons = get_all_cannon_positions();
+    vector<Board> get_all_cannon_steps(vector<pair<pii, char>>& cannons, bool _we=true) {
         vector<Board> ans;
+        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
+        short l_forw = -_mark*forw; // Local forward
         short xo, yo, xn, yn;
         for(auto& _c : cannons) {
                 xo = _c.first.X;
@@ -263,59 +264,59 @@ public:
                 case 'V' : {
                     yn = yo;
                     // Forward Move
-                    xn = xo + 2*forw;
+                    xn = xo + 2*l_forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
-                            ans.pb(move_player({xo-forw, yo}, {xn, yn}));
+                            ans.pb(move_player({xo-l_forw, yo}, {xn, yn}, _we));
                     // Backward Move
-                    xn = xo - 2*forw;
+                    xn = xo - 2*l_forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
-                            ans.pb(move_player({xo+forw, yo}, {xn, yn}));
+                            ans.pb(move_player({xo+l_forw, yo}, {xn, yn}, _we));
                     break;
                 }
                 case 'H' : {
                     xn = xo;
                     // Forward Move
-                    yn = yo + 2*forw;
+                    yn = yo + 2*l_forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
-                            ans.pb(move_player({xo, yo-forw}, {xn, yn}));
+                            ans.pb(move_player({xo, yo-l_forw}, {xn, yn}, _we));
                     // Backward move
-                    yn = yo - 2*forw;
+                    yn = yo - 2*l_forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
-                            ans.pb(move_player({xo, yo+forw}, {xn, yn}));
+                            ans.pb(move_player({xo, yo+l_forw}, {xn, yn}, _we));
                     break;
                 }
                 case 'L' : {
                     // Forward move
-                    xn = xo + 2*forw;
-                    yn = yo - 2*forw;
+                    xn = xo + 2*l_forw;
+                    yn = yo - 2*l_forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
-                            ans.pb(move_player({xo-forw, yo+forw}, {xn, yn}));
+                            ans.pb(move_player({xo-l_forw, yo+l_forw}, {xn, yn}, _we));
                     // Backward move
-                    xn = xo - 2*forw;
-                    yn = yo + 2*forw;
+                    xn = xo - 2*l_forw;
+                    yn = yo + 2*l_forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
-                            ans.pb(move_player({xo+forw, yo-forw}, {xn, yn}));
+                            ans.pb(move_player({xo+l_forw, yo-l_forw}, {xn, yn}, _we));
                     break;
                 }
                 case 'R' : {
                     // Forward move
-                    xn = xo + 2*forw;
-                    yn = yo + 2*forw;
+                    xn = xo + 2*l_forw;
+                    yn = yo + 2*l_forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
-                            ans.pb(move_player({xo-forw, yo-forw}, {xn, yn}));
+                            ans.pb(move_player({xo-l_forw, yo-l_forw}, {xn, yn}, _we));
                     // Backward move
-                    xn = xo - 2*forw;
-                    yn = yo - 2*forw;
+                    xn = xo - 2*l_forw;
+                    yn = yo - 2*l_forw;
                     if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
-                            ans.pb(move_player({xo+forw, yo+forw}, {xn, yn}));
+                            ans.pb(move_player({xo+l_forw, yo+l_forw}, {xn, yn}, _we));
                     break;
                 }
             }
@@ -326,77 +327,92 @@ public:
     /*
      * All possible attacks by cannons
      */
-    vector<Board> get_all_cannon_attacks() {
-        // Accessing all cannons
-        vector<pair<pii, char>> cannons = get_all_cannon_positions();
+    vector<Board> get_all_cannon_attacks(vector<pair<pii, char>>& cannons, bool _we=true) {
         vector<Board> ans;
+        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
+        short l_forw = -_mark*forw; // Local forward
         short xo, yo;
         for(auto& _c : cannons) {
             xo = _c.first.X;
             yo = _c.first.Y;
             switch(_c.second) {
                 case 'H' : {
-                    if(!(xo+3*forw < 0 || xo+3*forw >= _row))
-                        if(board[xo+3*forw][yo] < 0 && board[xo+2*forw][yo] == 0)
-                            ans.pb(remove_player({xo+3*forw, yo}));
-                    if(!(xo-3*forw < 0 || xo-3*forw >= _row))
-                        if(board[xo-3*forw][yo] < 0 && board[xo-2*forw][yo] == 0)
-                            ans.pb(remove_player({xo-3*forw, yo}));
-                    if(!(xo+4*forw < 0 || xo+4*forw >= _row))
-                        if(board[xo+4*forw][yo] < 0 && board[xo+2*forw][yo] == 0)
-                            ans.pb(remove_player({xo+4*forw, yo}));
-                    if(!(xo-4*forw < 0 || xo-4*forw >= _row))
-                        if(board[xo-4*forw][yo] < 0 && board[xo-2*forw][yo] == 0)
-                            ans.pb(remove_player({xo-4*forw, yo}));
+                    if(!(xo+3*l_forw < 0 || xo+3*l_forw >= _row))
+                        if(-_mark*board[xo+3*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
+                            ans.pb(remove_player({xo+3*l_forw, yo}, _we));
+                    if(!(xo-3*l_forw < 0 || xo-3*l_forw >= _row))
+                        if(-_mark*board[xo-3*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
+                            ans.pb(remove_player({xo-3*l_forw, yo}, _we));
+                    if(!(xo+4*l_forw < 0 || xo+4*l_forw >= _row))
+                        if(-_mark*board[xo+4*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
+                            ans.pb(remove_player({xo+4*l_forw, yo}, _we));
+                    if(!(xo-4*l_forw < 0 || xo-4*l_forw >= _row))
+                        if(-_mark*board[xo-4*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
+                            ans.pb(remove_player({xo-4*l_forw, yo}, _we));
                     break;
                 }
                 case 'V' : {
-                    if(!(yo+3*forw < 0 || yo+3*forw >= _col))
-                        if(board[xo][yo+3*forw] < 0 && board[xo][yo+2*forw] == 0)
-                            ans.pb(remove_player({xo, yo+3*forw}));
-                    if(!(yo-3*forw < 0 || yo-3*forw >= _col))
-                        if(board[xo][yo-3*forw] < 0 && board[xo][yo-2*forw] == 0)
-                            ans.pb(remove_player({xo, yo-3*forw}));
-                    if(!(yo+4*forw < 0 || yo+4*forw >= _row))
-                        if(board[xo][yo+4*forw] < 0 && board[xo][yo+2*forw] == 0)
-                            ans.pb(remove_player({xo, yo+4*forw}));
-                    if(!(yo-4*forw < 0 || yo-4*forw >= _row))
-                        if(board[xo][yo-4*forw] < 0 && board[xo][yo-2*forw] == 0)
-                            ans.pb(remove_player({xo, yo-4*forw}));
+                    if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col))
+                        if(-_mark*board[xo][yo+3*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
+                            ans.pb(remove_player({xo, yo+3*l_forw}, _we));
+                    if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col))
+                        if(-_mark*board[xo][yo-3*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
+                            ans.pb(remove_player({xo, yo-3*l_forw}, _we));
+                    if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _row))
+                        if(-_mark*board[xo][yo+4*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
+                            ans.pb(remove_player({xo, yo+4*l_forw}, _we));
+                    if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _row))
+                        if(-_mark*board[xo][yo-4*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
+                            ans.pb(remove_player({xo, yo-4*l_forw}, _we));
                     break;
                 }
                 case 'L' : {
-                    if(!(yo+3*forw < 0 || yo+3*forw >= _col || xo-3*forw < 0 || xo-3*forw >= _row))
-                        if(board[xo-3*forw][yo+3*forw] < 0  && board[xo-2*forw][yo+2*forw] == 0)
-                            ans.pb(remove_player({xo-3*forw, yo+3*forw}));
-                    if(!(yo-3*forw < 0 || yo-3*forw >= _col || xo+3*forw < 0 || xo+3*forw >= _row))
-                        if(board[xo+3*forw][yo-3*forw] < 0  && board[xo+2*forw][yo-2*forw] == 0)
-                            ans.pb(remove_player({xo+3*forw, yo-3*forw}));
-                    if(!(yo+4*forw < 0 || yo+4*forw >= _col || xo-4*forw < 0 || xo-4*forw >= _row))
-                        if(board[xo-4*forw][yo+4*forw] < 0  && board[xo-2*forw][yo+2*forw] == 0)
-                            ans.pb(remove_player({xo-forw*4, yo+4*forw}));
-                    if(!(yo-4*forw < 0 || yo-4*forw >= _col || xo+4*forw < 0 || xo+4*forw >= _row))
-                        if(board[xo+4*forw][yo-4*forw] < 0  && board[xo+2*forw][yo-2*forw] == 0)
-                            ans.pb(remove_player({xo+4*forw, yo-4*forw}));
+                    if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
+                        if(-_mark*board[xo-3*l_forw][yo+3*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
+                            ans.pb(remove_player({xo-3*l_forw, yo+3*l_forw}, _we));
+                    if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
+                        if(-_mark*board[xo+3*l_forw][yo-3*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
+                            ans.pb(remove_player({xo+3*l_forw, yo-3*l_forw}, _we));
+                    if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
+                        if(-_mark*board[xo-4*l_forw][yo+4*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
+                            ans.pb(remove_player({xo-l_forw*4, yo+4*l_forw}, _we));
+                    if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
+                        if(-_mark*board[xo+4*l_forw][yo-4*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
+                            ans.pb(remove_player({xo+4*l_forw, yo-4*l_forw}, _we));
                     break;
                 }
                 case 'R' : {
-                    if(!(yo+3*forw < 0 || yo+3*forw >= _col || xo+3*forw < 0 || xo+3*forw >= _row))
-                        if(board[xo+3*forw][yo+3*forw] < 0 && board[xo+2*forw][yo+2*forw] == 0)
-                            ans.pb(remove_player({xo+3*forw, yo+3*forw}));
-                    if(!(yo-3*forw < 0 || yo-3*forw >= _col || xo-3*forw < 0 || xo-3*forw >= _row))
-                        if(board[xo-3*forw][yo-3*forw] < 0 && board[xo-2*forw][yo-2*forw] == 0)
-                            ans.pb(remove_player({xo-3*forw, yo-3*forw}));
-                    if(!(yo+4*forw < 0 || yo+4*forw >= _col || xo+4*forw < 0 || xo+4*forw >= _row))
-                        if(board[xo+4*forw][yo+4*forw] < 0 && board[xo+2*forw][yo+2*forw] == 0)
-                            ans.pb(remove_player({xo+forw*4, yo+4*forw}));
-                    if(!(yo-4*forw < 0 || yo-4*forw >= _col || xo-4*forw < 0 || xo-4*forw >= _row))
-                        if(board[xo-4*forw][yo-4*forw] < 0 && board[xo-2*forw][yo-2*forw] == 0)
-                            ans.pb(remove_player({xo-4*forw, yo-4*forw}));
+                    if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
+                        if(-_mark*board[xo+3*l_forw][yo+3*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
+                            ans.pb(remove_player({xo+3*l_forw, yo+3*l_forw}, _we));
+                    if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
+                        if(-_mark*board[xo-3*l_forw][yo-3*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
+                            ans.pb(remove_player({xo-3*l_forw, yo-3*l_forw}, _we));
+                    if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
+                        if(-_mark*board[xo+4*l_forw][yo+4*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
+                            ans.pb(remove_player({xo+l_forw*4, yo+4*l_forw}, _we));
+                    if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
+                        if(-_mark*board[xo-4*l_forw][yo-4*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
+                            ans.pb(remove_player({xo-4*l_forw, yo-4*l_forw}, _we));
                     break;
                 }
             }
         }
+        return ans;
+    }
+
+    /*
+     * Getting all the cannon moves
+     */
+    vector<Board> get_all_cannon_moves(bool _we=true) {
+        // Getting all cannons
+        vector<pair<pii, char>> cannons = get_all_cannon_positions(_we);
+        vector<Board> ans, temp;
+        // Getting all cannons attacks
+        ans = get_all_cannon_attacks(cannons, _we);
+        // Getting all cannon steps
+        temp = get_all_cannon_steps(cannons, _we);
+        ans.insert(ans.end(), temp.begin(), temp.end());
         return ans;
     }
 
@@ -428,7 +444,7 @@ int main(int argc, char const *argv[]) {
     forw = (is_black == true) ? -1 : 1;
     Board c = Board(8, 8, is_black);
     c.print_board();
-    vector<Board> v = c.get_all_soldier_moves(false);
+    vector<Board> v = c.get_all_cannon_moves(false);
     for(auto b : v) b.print_board();
     return 0;
 }
