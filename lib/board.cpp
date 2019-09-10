@@ -397,11 +397,23 @@ public:
         get_all_cannon_steps(ans, cannons, _we);
     }
 
+    /*
+    * Scoring function for the board
+    * @param _b : input board
+    */
+    short score() {
+        return (this->count(1)-this->count(2))*5 + (this->count(3)-this->count(4))*20;
+    }
+
     vector<Board> get_all_moves(bool _we)
     {
         vector<Board> ans;
         get_all_cannon_moves(ans, _we);
         get_all_soldier_moves(ans, _we);
+        if(_we)
+            sort(ans.begin(), ans.end(), [](Board& b1, Board& b2) { return b1.score() > b2.score(); });
+        else
+            sort(ans.begin(), ans.end(), [](Board& b1, Board& b2) { return b1.score() < b2.score(); });
         return ans;
     }
 
@@ -418,19 +430,10 @@ public:
     }
 };
 
+short min_value(Board&, short&, short&, short);
 
-/*
- * Scoring function for the board
- * @param _b : input board
- */
-short score(Board& _b) {
-    return (_b.count(1)-_b.count(2))*5 + (_b.count(3)-_b.count(4))*20;
-}
-
-short min_value(Board&, short, short, short);
-
-short max_value(Board& _b, short alpha, short beta, short depth) {
-    if(depth == 0) return score(_b);
+short max_value(Board& _b, short& alpha, short& beta, short depth) {
+    if(depth == 0) return _b.score();
     short v = -inf;
     vector<Board> neighbours = _b.get_all_moves(1);
     for(auto& _c : neighbours) {
@@ -441,8 +444,8 @@ short max_value(Board& _b, short alpha, short beta, short depth) {
     return v;
 }
 
-short min_value(Board& _b, short alpha, short beta, short depth) {
-    if(depth == 0) return score(_b);
+short min_value(Board& _b, short& alpha, short& beta, short depth) {
+    if(depth == 0) return _b.score();
     short v = inf;
     vector<Board> neighbours = _b.get_all_moves(0);
     for(auto& _c : neighbours) {
@@ -490,11 +493,18 @@ int main(int argc, char const *argv[]) {
     _col = 8;
     forw = (is_black == true) ? -1 : 1;
     Board c = Board(is_black);
-    vector<Board> v, temp;
-    bool step = true;
-    for(int i=0; i<10; i++) {
+    bool step = is_black;
+    for(int i=0; i<1000; i++) {
         c.print_board();
-        cout << score(c) << "\n";
+        cout << c.score() << "\n";
+        if(c.count(4) == 2) {
+            cout << "We won!\n";
+            break;
+        }
+        if(c.count(3) == 2) {
+            cout << "We lost :(\n";
+            break;
+        }
         /*v = c.get_all_moves(step);
         if(step) {
             sort(v.begin(), v.end(), [](Board& b1, Board& b2) { return score(b1) > score(b2); });
@@ -508,7 +518,7 @@ int main(int argc, char const *argv[]) {
             v = c.get_all_moves(step);
             for(auto &b : v) b.print_board();
         }*/
-        c = alpha_beta_search(c, 3, step);
+        c = alpha_beta_search(c, 5, step);
         step = !step;
     }
     return 0;
