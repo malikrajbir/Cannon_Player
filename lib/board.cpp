@@ -430,9 +430,9 @@ public:
     }
 };
 
-short min_value(Board&, short&, short&, short);
+short min_value(Board&, short, short, short);
 
-short max_value(Board& _b, short& alpha, short& beta, short depth) {
+short max_value(Board& _b, short alpha, short beta, short depth) {
     if(depth == 0) return _b.score();
     short v = -inf;
     vector<Board> neighbours = _b.get_all_moves(1);
@@ -444,7 +444,7 @@ short max_value(Board& _b, short& alpha, short& beta, short depth) {
     return v;
 }
 
-short min_value(Board& _b, short& alpha, short& beta, short depth) {
+short min_value(Board& _b, short alpha, short beta, short depth) {
     if(depth == 0) return _b.score();
     short v = inf;
     vector<Board> neighbours = _b.get_all_moves(0);
@@ -505,19 +505,6 @@ int main(int argc, char const *argv[]) {
             cout << "We lost :(\n";
             break;
         }
-        /*v = c.get_all_moves(step);
-        if(step) {
-            sort(v.begin(), v.end(), [](Board& b1, Board& b2) { return score(b1) > score(b2); });
-        }
-        else {
-            sort(v.begin(), v.end(), [](Board& b1, Board& b2) { return score(b1) < score(b2); });
-        }
-        c = v[0];*/
-        /*if(i == 3)
-        {
-            v = c.get_all_moves(step);
-            for(auto &b : v) b.print_board();
-        }*/
         c = alpha_beta_search(c, 5, step);
         step = !step;
     }
