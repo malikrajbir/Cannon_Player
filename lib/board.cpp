@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <time.h>
+#include <algorithm>
 #define X first
 #define Y second
 #define pb push_back
@@ -13,7 +14,8 @@ using namespace std;
 typedef pair<short, short> pii;
 
 short forw; // for black, forw = -1 (one step forward decreases the row index) and for white, forw = 1 (one step forward increases the row index)
-uint _row, _col;
+unsigned int _row, _col;
+short inf = SHRT_MAX;
 
 // Class for representing the game board
 class Board {
@@ -98,7 +100,7 @@ public:
      * @param curr : current position of a player
      * @param next : new position of the player
      */
-    Board move_player(pii curr, pii next, bool _we=true) {
+    Board move_player(pii curr, pii next, bool _we) {
         Board res = *this;
         if(_we) {
             assert(res.pos()[next.X][next.Y] <= 0);
@@ -119,7 +121,7 @@ public:
      * Get new board object when cannon destroys an item
      * @param ps : position of the destroyed entity
      */
-    Board remove_player(pii ps, bool _we=true) {
+    Board remove_player(pii ps, bool _we) {
         Board res = *this;
         if(_we) {
             assert(res.pos()[ps.X][ps.Y] < 0);
@@ -138,7 +140,7 @@ public:
     /*
      * returns true if soldier present at (x, y) is adjacent to enemy soldier
      */
-    bool is_adjacent_to_enemy(int x, int y, bool _we=true) {
+    bool is_adjacent_to_enemy(int x, int y, bool _we) {
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
         if(y-1 >= 0 && board[x][y-1] == _mark) return true;
@@ -154,9 +156,8 @@ public:
     /*
      * returns the board positions when soldier present at (x, y) retreats if it is adjacent to enemy
      */
-    vector<Board> get_positions_for_soldier_retreat(int x, int y, bool _we=true) {
-        vector<Board> ans;
-        if(!is_adjacent_to_enemy(x, y, _we)) return ans;
+    void get_positions_for_soldier_retreat(vector<Board>& ans, int x, int y, bool _we) {
+        if(!is_adjacent_to_enemy(x, y, _we)) return;
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
         short new_x = x - 2 * l_forw;
@@ -166,19 +167,17 @@ public:
             if(y-2 >= 0 && -_mark*board[new_x][y-2] <= 0) ans.pb(move_player({x, y}, {new_x, y-2}, _we));
             if(y+2 < _col && -_mark*board[new_x][y+2] <= 0) ans.pb(move_player({x, y}, {new_x, y+2}, _we));
         }
-        return ans;
     }
 
     /*
      * returns the board positions when soldier present at (x, y) moves forward or sideways to an empty
      * space or captures an enemy piece
      */
-    vector<Board> get_positions_for_soldier_forward(int x, int y, bool _we=true) {
-        vector<Board> ans;
+    void get_positions_for_soldier_forward(vector<Board>& ans, int x, int y, bool _we) {
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
-        if(y-1 >= 0 && -_mark*board[x][y-1] < 0) ans.pb(move_player({x, y}, {x, y-1}));
-        if(y+1 < _col && -_mark*board[x][y+1] < 0) ans.pb(move_player({x, y}, {x, y+1}));
+        if(y-1 >= 0 && -_mark*board[x][y-1] < 0) ans.pb(move_player({x, y}, {x, y-1}, _we));
+        if(y+1 < _col && -_mark*board[x][y+1] < 0) ans.pb(move_player({x, y}, {x, y+1}, _we));
         short new_x = x + l_forw;
         if(new_x >= 0 && new_x < _row) {
             // * Multiplying with -_mark, to get the correct sign
@@ -186,40 +185,33 @@ public:
             if(y-1 >= 0 && -_mark*board[new_x][y-1] <= 0) ans.pb(move_player({x, y}, {new_x, y-1}, _we));
             if(y+1 < _col && -_mark*board[new_x][y+1] <= 0) ans.pb(move_player({x, y}, {new_x, y+1}, _we));
         }
-        return ans;
     }
 
     /*
      * returns the soldier moves of a soldier present at (x, y)
      */
-    vector<Board> get_moves_for_soldiers(int x, int y, bool _we=true) {
+    void get_moves_for_soldiers(vector<Board>& ans, int x, int y, bool _we) {
         assert(abs(board[x][y]) == 1);
-        vector<Board> ans = get_positions_for_soldier_forward(x, y, _we);
-        vector<Board> tmp = get_positions_for_soldier_retreat(x, y, _we);
-        ans.insert(ans.end(), tmp.begin(), tmp.end());
-        return ans;
+        get_positions_for_soldier_forward(ans, x, y, _we);
+        get_positions_for_soldier_retreat(ans, x, y, _we);
     }
 
     /*
      * returns all soldier moves of present state of board
      */
-    vector<Board> get_all_soldier_moves(bool _we=true) {
-        vector<Board> ans, tmp;
+    void get_all_soldier_moves(vector<Board>& ans, bool _we) {
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
         for(short i=0; i<_row; i++)
             for(short j=0; j<_col; j++)
-                if(board[i][j] == -_mark) {
-                    tmp = get_moves_for_soldiers(i, j, _we);
-                    ans.insert(ans.end(), tmp.begin(), tmp.end());
-                }
-        return ans;
+                if(board[i][j] == -_mark)
+                    get_moves_for_soldiers(ans, i, j, _we);
     }
 
     /*
      * Find the cannons on the present board (keeps only the middle element and orientation)
      */
-    vector<pair<pii, char>> get_all_cannon_positions(bool _we=true) {
+    vector<pair<pii, char>> get_all_cannon_positions(bool _we) {
         vector<pair<pii, char>> cannons;
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         // Loop
@@ -229,17 +221,17 @@ public:
                     // Searching for vertical cannons (Case : V)
                     if(i != 0 && i != _row-1)
                         if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
-                            cannons.pb(pair<pii, char>({i, j}, 'V'));
+                            cannons.pb({{i, j}, 'V'});
                     // Searching for horizontal cannons (Case : H)
                     if(j != 0 && j != _col-1)
                         if(board[i][j-1] == -_mark && board[i][j+1] == -_mark)
-                            cannons.pb(pair<pii, char>({i, j}, 'H'));
+                            cannons.pb({{i, j}, 'H'});
                     // Searching for diagonal cannons (Case : L or R)
                     if(!(j == 0 || i == 0 || j == _col-1 || i == _row-1)) {
                         if(board[i+1][j-1] == -_mark && board[i-1][j+1] == -_mark)
-                            cannons.pb(pair<pii, char>({i, j}, 'L'));
+                            cannons.pb({{i, j}, 'L'});
                         if(board[i-1][j-1] == -_mark && board[i+1][j+1] == -_mark)
-                            cannons.pb(pair<pii, char>({i, j}, 'R'));
+                            cannons.pb({{i, j}, 'R'});
                     }
                 }
         return cannons;
@@ -248,25 +240,24 @@ public:
     /*
      * All possible movements for the cannons
      */
-    vector<Board> get_all_cannon_steps(vector<pair<pii, char>>& cannons, bool _we=true) {
-        vector<Board> ans;
+    void get_all_cannon_steps(vector<Board>& ans, vector<pair<pii, char>>& cannons, bool _we) {
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
         short xo, yo, xn, yn;
         for(auto& _c : cannons) {
-                xo = _c.first.X;
-                yo = _c.first.Y;
-            switch(_c.second) {
+                xo = _c.X.X;
+                yo = _c.X.Y;
+            switch(_c.Y) {
                 case 'V' : {
                     yn = yo;
                     // Forward Move
                     xn = xo + 2*l_forw;
-                    if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
+                    if(!(xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
                             ans.pb(move_player({xo-l_forw, yo}, {xn, yn}, _we));
                     // Backward Move
                     xn = xo - 2*l_forw;
-                    if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
+                    if(!(xn < 0 || xn >= _row))
                         if(board[xn][yn] == 0)
                             ans.pb(move_player({xo+l_forw, yo}, {xn, yn}, _we));
                     break;
@@ -275,12 +266,12 @@ public:
                     xn = xo;
                     // Forward Move
                     yn = yo + 2*l_forw;
-                    if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
+                    if(!(yn < 0 || yn >= _col))
                         if(board[xn][yn] == 0)
                             ans.pb(move_player({xo, yo-l_forw}, {xn, yn}, _we));
                     // Backward move
                     yn = yo - 2*l_forw;
-                    if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
+                    if(!(yn < 0 || yn >= _col))
                         if(board[xn][yn] == 0)
                             ans.pb(move_player({xo, yo+l_forw}, {xn, yn}, _we));
                     break;
@@ -317,22 +308,20 @@ public:
                 }
             }
         }
-        return ans;
     }
 
     /*
      * All possible attacks by cannons
      */
-    vector<Board> get_all_cannon_attacks(vector<pair<pii, char>>& cannons, bool _we=true) {
-        vector<Board> ans;
+    void get_all_cannon_attacks(vector<Board>& ans, vector<pair<pii, char>>& cannons, bool _we) {
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
         short xo, yo;
         for(auto& _c : cannons) {
-            xo = _c.first.X;
-            yo = _c.first.Y;
-            switch(_c.second) {
-                case 'H' : {
+            xo = _c.X.X;
+            yo = _c.X.Y;
+            switch(_c.Y) {
+                case 'V' : {
                     if(!(xo+3*l_forw < 0 || xo+3*l_forw >= _row))
                         if(-_mark*board[xo+3*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
                             ans.pb(remove_player({xo+3*l_forw, yo}, _we));
@@ -347,7 +336,7 @@ public:
                             ans.pb(remove_player({xo-4*l_forw, yo}, _we));
                     break;
                 }
-                case 'V' : {
+                case 'H' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col))
                         if(-_mark*board[xo][yo+3*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo, yo+3*l_forw}, _we));
@@ -386,7 +375,7 @@ public:
                             ans.pb(remove_player({xo-3*l_forw, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
                         if(-_mark*board[xo+4*l_forw][yo+4*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
-                            ans.pb(remove_player({xo+l_forw*4, yo+4*l_forw}, _we));
+                            ans.pb(remove_player({xo+4*l_forw, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
                         if(-_mark*board[xo-4*l_forw][yo-4*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo-4*l_forw, yo-4*l_forw}, _we));
@@ -394,21 +383,25 @@ public:
                 }
             }
         }
-        return ans;
     }
 
     /*
      * Getting all the cannon moves
      */
-    vector<Board> get_all_cannon_moves(bool _we=true) {
+    void get_all_cannon_moves(vector<Board> &ans, bool _we) {
         // Getting all cannons
         vector<pair<pii, char>> cannons = get_all_cannon_positions(_we);
-        vector<Board> ans, temp;
         // Getting all cannons attacks
-        ans = get_all_cannon_attacks(cannons, _we);
+        get_all_cannon_attacks(ans, cannons, _we);
         // Getting all cannon steps
-        temp = get_all_cannon_steps(cannons, _we);
-        ans.insert(ans.end(), temp.begin(), temp.end());
+        get_all_cannon_steps(ans, cannons, _we);
+    }
+
+    vector<Board> get_all_moves(bool _we)
+    {
+        vector<Board> ans;
+        get_all_cannon_moves(ans, _we);
+        get_all_soldier_moves(ans, _we);
         return ans;
     }
 
@@ -434,6 +427,62 @@ short score(Board& _b) {
     return (_b.count(1)-_b.count(2))*5 + (_b.count(3)-_b.count(4))*20;
 }
 
+short min_value(Board&, short, short, short);
+
+short max_value(Board& _b, short alpha, short beta, short depth) {
+    if(depth == 0) return score(_b);
+    short v = -inf;
+    vector<Board> neighbours = _b.get_all_moves(1);
+    for(auto& _c : neighbours) {
+        v = max(v, min_value(_c, alpha, beta, depth-1));
+        if(v >= beta) return v;
+        if(v > alpha) alpha = v;
+    }
+    return v;
+}
+
+short min_value(Board& _b, short alpha, short beta, short depth) {
+    if(depth == 0) return score(_b);
+    short v = inf;
+    vector<Board> neighbours = _b.get_all_moves(0);
+    for(auto& _c : neighbours) {
+        v = min(v, max_value(_c, alpha, beta, depth-1));
+        if(v <= alpha) return v;
+        if(v < beta) beta = v;
+    }
+    return v;
+}
+
+Board alpha_beta_search(Board& _b, short depth, bool _we)
+{
+    short alpha = -inf, beta = inf, tmp, v, k;
+    Board best = NULL; vector<Board> neighbours = _b.get_all_moves(_we);
+    k = neighbours.size();
+    if(_we) {
+        v = -inf;
+        for(int i=0;i<k;i++) {
+            tmp = min_value(neighbours[i], alpha, beta, depth-1);
+            if(tmp > v) {
+                v = tmp;
+                best = neighbours[i];
+            }
+            if(v > alpha) alpha = v;
+        }
+    }
+    else {
+        v = inf;
+        for(int i=0;i<k;i++) {
+            tmp = max_value(neighbours[i], alpha, beta, depth-1);
+            if(tmp < v) {
+                v = tmp;
+                best = neighbours[i];
+            }
+            if(v < beta) beta = v;
+        }
+    }
+    return best;
+}
+
 int main(int argc, char const *argv[]) {
     /* code */
     bool is_black = 1;
@@ -443,19 +492,23 @@ int main(int argc, char const *argv[]) {
     Board c = Board(is_black);
     vector<Board> v, temp;
     bool step = true;
-    for(int i=0; i<20; i++) {
+    for(int i=0; i<10; i++) {
         c.print_board();
         cout << score(c) << "\n";
-        v = c.get_all_cannon_moves(step);
-        temp = c.get_all_soldier_moves(step);
-        v.insert(v.end(), temp.begin(), temp.end());
+        /*v = c.get_all_moves(step);
         if(step) {
             sort(v.begin(), v.end(), [](Board& b1, Board& b2) { return score(b1) > score(b2); });
         }
         else {
-            sort(v.begin(), v.end(), [](Board& b1, Board& b2) { return score(b1) < score(b2); }); 
+            sort(v.begin(), v.end(), [](Board& b1, Board& b2) { return score(b1) < score(b2); });
         }
-        c = v[0];
+        c = v[0];*/
+        /*if(i == 3)
+        {
+            v = c.get_all_moves(step);
+            for(auto &b : v) b.print_board();
+        }*/
+        c = alpha_beta_search(c, 3, step);
         step = !step;
     }
     return 0;
