@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <exception>
 #include <assert.h>
+#include <stdlib.h>
+#include <time.h>
 #define X first
 #define Y second
 #define pb push_back
@@ -427,8 +429,8 @@ public:
  * Scoring function for the board
  * @param _b : input board
  */
-uint score(Board& _b) {
-    return 0;
+short score(Board& _b) {
+    return (_b.count(1)-_b.count(2))*5 + (_b.count(3)-_b.count(4))*20;
 }
 
 int main(int argc, char const *argv[]) {
@@ -438,8 +440,22 @@ int main(int argc, char const *argv[]) {
     _col = 8;
     forw = (is_black == true) ? -1 : 1;
     Board c = Board(is_black);
-    c.print_board();
-    vector<Board> v = c.get_all_cannon_moves(false);
-    for(auto b : v) b.print_board();
+    vector<Board> v, temp;
+    bool step = true;
+    for(int i=0; i<20; i++) {
+        c.print_board();
+        cout << score(c) << "\n";
+        v = c.get_all_cannon_moves(step);
+        temp = c.get_all_soldier_moves(step);
+        v.insert(v.end(), temp.begin(), temp.end());
+        if(step) {
+            sort(v.begin(), v.end(), [](Board& b1, Board& b2) { return score(b1) > score(b2); });
+        }
+        else {
+            sort(v.begin(), v.end(), [](Board& b1, Board& b2) { return score(b1) < score(b2); }); 
+        }
+        c = v[0];
+        step = !step;
+    }
     return 0;
 }
