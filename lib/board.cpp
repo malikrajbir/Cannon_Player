@@ -99,10 +99,12 @@ public:
     Board move_player(pii curr, pii next, bool _we=true) {
         Board res = *this;
         if(_we) {
+            assert(res.pos()[next.X][next.Y] <= 0);
             if(res.pos()[next.X][next.Y] == -1) res.esc--;
             if(res.pos()[next.X][next.Y] == -2) res.etc--;
         }
         else {
+            assert(res.pos()[next.X][next.Y] >= 0);
             if(res.pos()[next.X][next.Y] == 1) res.ssc--;
             if(res.pos()[next.X][next.Y] == 2) res.stc--;
         }
@@ -126,7 +128,6 @@ public:
             assert(res.pos()[ps.X][ps.Y] > 0);
             if(res.pos()[ps.X][ps.Y] == 1) res.ssc--;
             if(res.pos()[ps.X][ps.Y] == 2) res.stc--;
-
         }
         res.pos()[ps.X][ps.Y] = 0;
         return res;
@@ -224,7 +225,7 @@ public:
             for(short j=0; j<_col; j++)
                 if(board[i][j] == -_mark) {
                     // Searching for vertical cannons (Case : V)
-                    if(i != 0 && i!=_row-1)
+                    if(i != 0 && i != _row-1)
                         if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
                             cannons.pb(pair<pii, char>({i, j}, 'V'));
                     // Searching for horizontal cannons (Case : H)
@@ -244,7 +245,7 @@ public:
 
     /*
      * All possible movements for the cannons
-     */ 
+     */
     vector<Board> get_all_cannon_steps(vector<pair<pii, char>>& cannons, bool _we=true) {
         vector<Board> ans;
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
