@@ -104,7 +104,7 @@ public:
             case 2: return stc;
             case -2: return etc;
         }
-        throw new runtime_error("Invalid key. (Must be 2, -1, 1, 2) [Board.count]");
+        throw new runtime_error("Invalid key. (Must be -2, -1, 1, 2) [Board.count]");
     }
 
     vector<vector<pii>>& soldiers() {
@@ -188,7 +188,7 @@ public:
             return remove_player({(int)(_stp[4]-'0'),(int)(_stp[2]-'0')}, {(int)(_stp[10]-'0'),(int)(_stp[8]-'0')}, false);
         }
         else {
-            cerr << flush << "Error in [next_state]\n";
+            cerr << flush << _stp.length() << " " << _stp << " " << "Error in [next_state]\n";
             throw new runtime_error("Error");
         }
     }
@@ -609,39 +609,43 @@ Board alpha_beta_search(Board& _b, short depth, bool _we)
 
 int main(int argc, char const *argv[]) {
     /* code */
-    bool is_black;
+    int is_black;
     cin >> is_black;
 
-    if(is_black) cout << "Computer is black...\n";
-    else cout << "Computer is white...\n";
+    // if(is_black) cout << "Computer is black...\n";
+    // else cout << "Computer is white...\n";
 
-    _row = 8;
-    _col = 8;
+    is_black = (is_black==1);
+
+    cin >> _row;
+    cin >> _col;
     forw = (is_black == true) ? -1 : 1;
+
+    int t;
+    cin >> t;
 
     Board c = Board(is_black);
     c.prev_step = "Start";
 
     bool step = is_black;
     string user_step;
-    getline(cin, user_step);
+
+    char s;
 
     while(1) {
-        if(c.count(-2) == 2) {
-            cout << "Human won...\n";
-            break;
-        }
-        if(c.count(2) == 2) {
-            cout << "Bot won...\n";
-            break;
-        }
         if(step) {
-            c = alpha_beta_search(c, 5, step);
-            cout << c.prev_step << "\n";
+            c = alpha_beta_search(c, 4, step);
+            cout << c.prev_step << endl;
         }
         else {
-            cout << "Enter move: ";
-            getline(cin, user_step);
+            user_step = "";
+            for(int i=0; i<5; i++) {
+                cin >> s;
+                user_step += s;
+                user_step += " ";
+            }
+            cin >> s;
+            user_step += s;
             c = c.next_state(user_step);
         }
         step = !step;
