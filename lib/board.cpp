@@ -153,12 +153,12 @@ public:
         //cout<<flush<<"hi";
         Board res = *this;
         if(_we) {
-            assert(res.pos()[ps.X][ps.Y] < 0);
+            assert(res.pos()[ps.X][ps.Y] <= 0);
             if(res.pos()[ps.X][ps.Y] == -1) res.esc--;
             if(res.pos()[ps.X][ps.Y] == -2) res.etc--;
         }
         else {
-            assert(res.pos()[ps.X][ps.Y] > 0);
+            assert(res.pos()[ps.X][ps.Y] >= 0);
             if(res.pos()[ps.X][ps.Y] == 1) res.ssc--;
             if(res.pos()[ps.X][ps.Y] == 2) res.stc--;
         }
@@ -357,61 +357,61 @@ public:
             switch(_c.Y) {
                 case 'V' : {
                     if(!(xo+3*l_forw < 0 || xo+3*l_forw >= _row))
-                        if(-_mark*board[xo+3*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
+                        if(-_mark*board[xo+3*l_forw][yo] <= 0 && board[xo+2*l_forw][yo] == 0)
                             ans.pb(remove_player({xo+3*l_forw, yo}, _we));
                     if(!(xo-3*l_forw < 0 || xo-3*l_forw >= _row))
-                        if(-_mark*board[xo-3*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
+                        if(-_mark*board[xo-3*l_forw][yo] <= 0 && board[xo-2*l_forw][yo] == 0)
                             ans.pb(remove_player({xo-3*l_forw, yo}, _we));
                     if(!(xo+4*l_forw < 0 || xo+4*l_forw >= _row))
-                        if(-_mark*board[xo+4*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
+                        if(-_mark*board[xo+4*l_forw][yo] <= 0 && board[xo+2*l_forw][yo] == 0)
                             ans.pb(remove_player({xo+4*l_forw, yo}, _we));
                     if(!(xo-4*l_forw < 0 || xo-4*l_forw >= _row))
-                        if(-_mark*board[xo-4*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
+                        if(-_mark*board[xo-4*l_forw][yo] <= 0 && board[xo-2*l_forw][yo] == 0)
                             ans.pb(remove_player({xo-4*l_forw, yo}, _we));
                     break;
                 }
                 case 'H' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col))
-                        if(-_mark*board[xo][yo+3*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo][yo+3*l_forw] <= 0 && board[xo][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo, yo+3*l_forw}, _we));
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col))
-                        if(-_mark*board[xo][yo-3*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo][yo-3*l_forw] <= 0 && board[xo][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _row))
-                        if(-_mark*board[xo][yo+4*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo][yo+4*l_forw] <= 0 && board[xo][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _row))
-                        if(-_mark*board[xo][yo-4*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo][yo-4*l_forw] <= 0 && board[xo][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo, yo-4*l_forw}, _we));
                     break;
                 }
                 case 'L' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
-                        if(-_mark*board[xo-3*l_forw][yo+3*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo-3*l_forw][yo+3*l_forw] <= 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo-3*l_forw, yo+3*l_forw}, _we));
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
-                        if(-_mark*board[xo+3*l_forw][yo-3*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo+3*l_forw][yo-3*l_forw] <= 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo+3*l_forw, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
-                        if(-_mark*board[xo-4*l_forw][yo+4*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo-4*l_forw][yo+4*l_forw] <= 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo-l_forw*4, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
-                        if(-_mark*board[xo+4*l_forw][yo-4*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo+4*l_forw][yo-4*l_forw] <= 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo+4*l_forw, yo-4*l_forw}, _we));
                     break;
                 }
                 case 'R' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
-                        if(-_mark*board[xo+3*l_forw][yo+3*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo+3*l_forw][yo+3*l_forw] <= 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo+3*l_forw, yo+3*l_forw}, _we));
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
-                        if(-_mark*board[xo-3*l_forw][yo-3*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo-3*l_forw][yo-3*l_forw] <= 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo-3*l_forw, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
-                        if(-_mark*board[xo+4*l_forw][yo+4*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo+4*l_forw][yo+4*l_forw] <= 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo+4*l_forw, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
-                        if(-_mark*board[xo-4*l_forw][yo-4*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo-4*l_forw][yo-4*l_forw] <= 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo-4*l_forw, yo-4*l_forw}, _we));
                     break;
                 }
@@ -437,7 +437,8 @@ public:
      */
     double cannon_scr(bool _we=true) {
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
-        short sc=0, ec=0, i, j;
+        double sc=0;
+        short i, j;
         for(short ind=0; ind<sold[_we].size(); ind++) {
             i = sold[_we][ind].X; j = sold[_we][ind].Y;
             if(i == -1 && j == -1) continue;
@@ -457,27 +458,7 @@ public:
                     sc+=3;
             }
         }
-        _mark = -_mark;
-        for(short ind=0; ind<sold[!_we].size(); ind++) {
-            i = sold[!_we][ind].X; j = sold[!_we][ind].Y;
-            if(i == -1 && j == -1) continue;
-            // Searching for vertical cannons (Case : V)
-            if(i != 0 && i != _row-1)
-                if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
-                    ec+=4;
-            // Searching for horizontal cannons (Case : H)
-            if(j != 0 && j != _col-1)
-                if(board[i][j-1] == -_mark && board[i][j+1] == -_mark)
-                    ec+=1;
-            // Searching for diagonal cannons (Case : L or R)
-            if(!(j == 0 || i == 0 || j == _col-1 || i == _row-1)) {
-                if(board[i+1][j-1] == -_mark && board[i-1][j+1] == -_mark)
-                    ec+=3;
-                if(board[i-1][j-1] == -_mark && board[i+1][j+1] == -_mark)
-                    ec+=3;
-            }
-        }
-        return sc-ec;
+        return sc;
     }
 
     /*
@@ -518,8 +499,8 @@ public:
     * @param _b : input board
     */
     double score(bool _we=true) {
-        short _can = cannon_scr(_we), _usafe_t = unsafe_sold(true), _usafe_f = unsafe_sold(false);
-        return this->count(1)*2.5-this->count(-1)*2.5 + this->count(2)*15-this->count(-2)*15 + _can - 3*_usafe_t + 3*_usafe_f;
+        short _can_t = cannon_scr(true), _can_f = cannon_scr(false), _usafe_t = unsafe_sold(true), _usafe_f = unsafe_sold(false);
+        return this->count(1)*2.5-this->count(-1)*2.5 + this->count(2)*15-this->count(-2)*15 + _can_t - _can_f - 3*_usafe_t + 3*_usafe_f;
     }
 
     vector<Board> get_all_moves(bool _we)
