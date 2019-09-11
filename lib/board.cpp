@@ -15,13 +15,14 @@ typedef pair<short, short> pii;
 
 short forw; // for black, forw = -1 (one step forward decreases the row index) and for white, forw = 1 (one step forward increases the row index)
 unsigned int _row, _col;
-short inf = SHRT_MAX;
+short inf = __SHRT_MAX__;
 
 // Class for representing the game board
 class Board {
 private:
-    vector<vector<short>> board; // Board
+    vector<vector<short>> board, posi; // Board
     unsigned int ssc, esc, stc, etc; // Counts (self soldiers, enemy soldiers, self towns, enemy towns)
+    vector<vector<pii>> sold;
 
     /*
      * Setting the original state of the board
@@ -40,9 +41,12 @@ private:
             etc++;
         }
         // Setting white soldiers
+        short k = 0;
         for(short i=1; i<_col; i+=2)
             for(short j=0; j<3; j++) {
                 board[j][i] = _set*1;
+                sold[!is_black][k] = {j, i};
+                posi[j][i] = k++;
                 esc++;
             }
         // BLACK
@@ -52,9 +56,12 @@ private:
             stc++;
         }
         // Setting black soldiers
+        k = 0;
         for(short i=0; i<_col; i+=2)
             for(short j=0; j<3; j++) {
                 board[_row - 1 - j][i] = -1*_set;
+                sold[is_black][k] = {_row - 1 - j, i};
+                posi[_row - 1 - j][i] = k++;
                 ssc++;
             }
     }
@@ -70,6 +77,8 @@ public:
     Board(bool is_black = true) {
         // Creating the vector
         this->board = vector<vector<short>>(_row, vector<short>(_col, 0));
+        this->posi = vector<vector<short>>(_row, vector<short>(_col, -1));
+        this->sold = vector<vector<pii>>(2, vector<pii>(_col*3/2));
         // Placing the pieces
         this->place(is_black);
     }
@@ -83,16 +92,24 @@ public:
 
     /*
      * Getting the respecitive counts
-     * @param _key : (1, ssc) (2, esc) (3, stc) (4, etc)
+     * @param _key : (1, ssc) (-1, esc) (2, stc) (-2, etc)
      */
     unsigned int& count(char _key) {
         switch(_key) {
             case 1: return ssc;
-            case 2: return esc;
-            case 3: return stc;
-            case 4: return etc;
+            case -1: return esc;
+            case 2: return stc;
+            case -2: return etc;
         }
-        throw new runtime_error("Invalid key. (Must be 1, 2, 3, 4) [Board.count]");
+        throw new runtime_error("Invalid key. (Must be 2, -1, 1, 2) [Board.count]");
+    }
+
+    vector<vector<pii>>& soldiers() {
+        return this->sold;
+    }
+
+    vector<vector<short>>& get_posi() {
+        return this->posi;
     }
 
     /*
@@ -112,8 +129,19 @@ public:
             if(res.pos()[next.X][next.Y] == 1) res.ssc--;
             if(res.pos()[next.X][next.Y] == 2) res.stc--;
         }
+        short ind = posi[curr.X][curr.Y];
+        assert(ind != -1);
+        assert(res.soldiers()[_we][ind] == curr);
+        res.soldiers()[_we][ind] = next;
+        if(posi[next.X][next.Y] != -1)
+        {
+            assert(posi[next.X][next.Y] < res.soldiers()[!_we].size());
+            res.soldiers()[!_we][posi[next.X][next.Y]] = {-1, -1};
+        }
         res.pos()[next.X][next.Y] = res.pos()[curr.X][curr.Y];
         res.pos()[curr.X][curr.Y] = 0;
+        res.get_posi()[curr.X][curr.Y] = -1;
+        res.get_posi()[next.X][next.Y] = ind;
         return res;
     }
 
@@ -122,6 +150,7 @@ public:
      * @param ps : position of the destroyed entity
      */
     Board remove_player(pii ps, bool _we) {
+        //cout<<flush<<"hi";
         Board res = *this;
         if(_we) {
             assert(res.pos()[ps.X][ps.Y] < 0);
@@ -132,6 +161,11 @@ public:
             assert(res.pos()[ps.X][ps.Y] > 0);
             if(res.pos()[ps.X][ps.Y] == 1) res.ssc--;
             if(res.pos()[ps.X][ps.Y] == 2) res.stc--;
+        }
+        short ind = posi[ps.X][ps.Y];
+        if(ind != -1) {
+            res.get_posi()[ps.X][ps.Y] = -1;
+            res.soldiers()[!_we][ind] = {-1, -1};
         }
         res.pos()[ps.X][ps.Y] = 0;
         return res;
@@ -191,7 +225,7 @@ public:
      * returns the soldier moves of a soldier present at (x, y)
      */
     void get_moves_for_soldiers(vector<Board>& ans, int x, int y, bool _we) {
-        assert(abs(board[x][y]) == 1);
+        //assert(abs(board[x][y]) == 1);
         get_positions_for_soldier_forward(ans, x, y, _we);
         get_positions_for_soldier_retreat(ans, x, y, _we);
     }
@@ -202,10 +236,9 @@ public:
     void get_all_soldier_moves(vector<Board>& ans, bool _we) {
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
-        for(short i=0; i<_row; i++)
-            for(short j=0; j<_col; j++)
-                if(board[i][j] == -_mark)
-                    get_moves_for_soldiers(ans, i, j, _we);
+        for(auto& i :sold[_we])
+            if(i.X != -1 || i.Y != -1)
+                get_moves_for_soldiers(ans, i.X, i.Y, _we);
     }
 
     /*
@@ -214,26 +247,27 @@ public:
     vector<pair<pii, char>> get_all_cannon_positions(bool _we) {
         vector<pair<pii, char>> cannons;
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
-        // Loop
-        for(short i=0; i<_row; i++)
-            for(short j=0; j<_col; j++)
-                if(board[i][j] == -_mark) {
-                    // Searching for vertical cannons (Case : V)
-                    if(i != 0 && i != _row-1)
-                        if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
-                            cannons.pb({{i, j}, 'V'});
-                    // Searching for horizontal cannons (Case : H)
-                    if(j != 0 && j != _col-1)
-                        if(board[i][j-1] == -_mark && board[i][j+1] == -_mark)
-                            cannons.pb({{i, j}, 'H'});
-                    // Searching for diagonal cannons (Case : L or R)
-                    if(!(j == 0 || i == 0 || j == _col-1 || i == _row-1)) {
-                        if(board[i+1][j-1] == -_mark && board[i-1][j+1] == -_mark)
-                            cannons.pb({{i, j}, 'L'});
-                        if(board[i-1][j-1] == -_mark && board[i+1][j+1] == -_mark)
-                            cannons.pb({{i, j}, 'R'});
-                    }
-                }
+        short i, j;
+        for(short ind=0; ind<sold[_we].size(); ind++)
+        {
+            i = sold[_we][ind].X; j = sold[_we][ind].Y;
+            if(i == -1 && j == -1) continue;
+            // Searching for vertical cannons (Case : V)
+            if(i != 0 && i != _row-1)
+                if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
+                    cannons.pb({{i, j}, 'V'});
+            // Searching for horizontal cannons (Case : H)
+            if(j != 0 && j != _col-1)
+                if(board[i][j-1] == -_mark && board[i][j+1] == -_mark)
+                    cannons.pb({{i, j}, 'H'});
+            // Searching for diagonal cannons (Case : L or R)
+            if(!(j == 0 || i == 0 || j == _col-1 || i == _row-1)) {
+                if(board[i+1][j-1] == -_mark && board[i-1][j+1] == -_mark)
+                    cannons.pb({{i, j}, 'L'});
+                if(board[i-1][j-1] == -_mark && board[i+1][j+1] == -_mark)
+                    cannons.pb({{i, j}, 'R'});
+            }
+        }
         return cannons;
     }
 
@@ -402,7 +436,7 @@ public:
     * @param _b : input board
     */
     short score() {
-        return (this->count(1)-this->count(2))*5 + (this->count(3)-this->count(4))*20;
+        return (this->count(1)-this->count(-1))*5 + (this->count(2)-this->count(-2))*20;
     }
 
     vector<Board> get_all_moves(bool _we)
@@ -458,6 +492,7 @@ short min_value(Board& _b, short alpha, short beta, short depth) {
 
 Board alpha_beta_search(Board& _b, short depth, bool _we)
 {
+    //cout<<flush<<"hi";
     short alpha = -inf, beta = inf, tmp, v, k;
     Board best = NULL; vector<Board> neighbours = _b.get_all_moves(_we);
     k = neighbours.size();
@@ -496,16 +531,16 @@ int main(int argc, char const *argv[]) {
     bool step = is_black;
     for(int i=0; i<1000; i++) {
         c.print_board();
-        cout << c.score() << "\n";
-        if(c.count(4) == 2) {
+        cout << flush << c.score() << "\n";
+        if(c.count(-2) == 2) {
             cout << "We won!\n";
             break;
         }
-        if(c.count(3) == 2) {
+        if(c.count(2) == 2) {
             cout << "We lost :(\n";
             break;
         }
-        c = alpha_beta_search(c, 5, step);
+        c = alpha_beta_search(c, 6, step);
         step = !step;
     }
     return 0;
