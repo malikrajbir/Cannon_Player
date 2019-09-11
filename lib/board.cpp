@@ -357,61 +357,61 @@ public:
             switch(_c.Y) {
                 case 'V' : {
                     if(!(xo+3*l_forw < 0 || xo+3*l_forw >= _row))
-                        if(-_mark*board[xo+3*l_forw][yo] <= 0 && board[xo+2*l_forw][yo] == 0)
+                        if(-_mark*board[xo+3*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
                             ans.pb(remove_player({xo+3*l_forw, yo}, _we));
                     if(!(xo-3*l_forw < 0 || xo-3*l_forw >= _row))
-                        if(-_mark*board[xo-3*l_forw][yo] <= 0 && board[xo-2*l_forw][yo] == 0)
+                        if(-_mark*board[xo-3*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
                             ans.pb(remove_player({xo-3*l_forw, yo}, _we));
                     if(!(xo+4*l_forw < 0 || xo+4*l_forw >= _row))
-                        if(-_mark*board[xo+4*l_forw][yo] <= 0 && board[xo+2*l_forw][yo] == 0)
+                        if(-_mark*board[xo+4*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
                             ans.pb(remove_player({xo+4*l_forw, yo}, _we));
                     if(!(xo-4*l_forw < 0 || xo-4*l_forw >= _row))
-                        if(-_mark*board[xo-4*l_forw][yo] <= 0 && board[xo-2*l_forw][yo] == 0)
+                        if(-_mark*board[xo-4*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
                             ans.pb(remove_player({xo-4*l_forw, yo}, _we));
                     break;
                 }
                 case 'H' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col))
-                        if(-_mark*board[xo][yo+3*l_forw] <= 0 && board[xo][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo][yo+3*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo, yo+3*l_forw}, _we));
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col))
-                        if(-_mark*board[xo][yo-3*l_forw] <= 0 && board[xo][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo][yo-3*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _row))
-                        if(-_mark*board[xo][yo+4*l_forw] <= 0 && board[xo][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo][yo+4*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _row))
-                        if(-_mark*board[xo][yo-4*l_forw] <= 0 && board[xo][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo][yo-4*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo, yo-4*l_forw}, _we));
                     break;
                 }
                 case 'L' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
-                        if(-_mark*board[xo-3*l_forw][yo+3*l_forw] <= 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo-3*l_forw][yo+3*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo-3*l_forw, yo+3*l_forw}, _we));
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
-                        if(-_mark*board[xo+3*l_forw][yo-3*l_forw] <= 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo+3*l_forw][yo-3*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo+3*l_forw, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
-                        if(-_mark*board[xo-4*l_forw][yo+4*l_forw] <= 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo-4*l_forw][yo+4*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo-l_forw*4, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
-                        if(-_mark*board[xo+4*l_forw][yo-4*l_forw] <= 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo+4*l_forw][yo-4*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo+4*l_forw, yo-4*l_forw}, _we));
                     break;
                 }
                 case 'R' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
-                        if(-_mark*board[xo+3*l_forw][yo+3*l_forw] <= 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo+3*l_forw][yo+3*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo+3*l_forw, yo+3*l_forw}, _we));
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
-                        if(-_mark*board[xo-3*l_forw][yo-3*l_forw] <= 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo-3*l_forw][yo-3*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo-3*l_forw, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
-                        if(-_mark*board[xo+4*l_forw][yo+4*l_forw] <= 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
+                        if(-_mark*board[xo+4*l_forw][yo+4*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
                             ans.pb(remove_player({xo+4*l_forw, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
-                        if(-_mark*board[xo-4*l_forw][yo-4*l_forw] <= 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
+                        if(-_mark*board[xo-4*l_forw][yo-4*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
                             ans.pb(remove_player({xo-4*l_forw, yo-4*l_forw}, _we));
                     break;
                 }
@@ -485,11 +485,11 @@ public:
             }
         }
         short sm = 0;
-        for(int i=0; i<_row; i++)
-            for(int j=0; j<_col; j++)
-                if(_p[i][j] && (board[i][j] == -_mark)) {
-                        sm++;
-                }
+        for(short ind=0; ind<sold[_we].size(); ind++) {
+            i = sold[_we][ind].X; j = sold[_we][ind].Y;
+            if(i == -1 && j == -1) continue;
+            if(_p[i][j]) sm++;
+        }
         _p.clear();
         return sm;
     }
@@ -500,7 +500,7 @@ public:
     */
     double score(bool _we=true) {
         short _can_t = cannon_scr(true), _can_f = cannon_scr(false), _usafe_t = unsafe_sold(true), _usafe_f = unsafe_sold(false);
-        return this->count(1)*2.5-this->count(-1)*2.5 + this->count(2)*15-this->count(-2)*15 + _can_t - _can_f - 3*_usafe_t + 3*_usafe_f;
+        return this->count(1)*2.5-this->count(-1)*2.5 + this->count(2)*15-this->count(-2)*15 + _can_t - _can_f + 3*_usafe_t - 3*_usafe_f;
     }
 
     vector<Board> get_all_moves(bool _we)
@@ -589,7 +589,7 @@ Board alpha_beta_search(Board& _b, short depth, bool _we)
 
 int main(int argc, char const *argv[]) {
     /* code */
-    bool is_black = 1;
+    bool is_black = 0;
     _row = 8;
     _col = 8;
     forw = (is_black == true) ? -1 : 1;
