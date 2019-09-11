@@ -431,12 +431,95 @@ public:
         get_all_cannon_steps(ans, cannons, _we);
     }
 
+
+    /*
+     * Function for finding the count of cannons present (for both us and enemy)
+     */
+    double cannon_scr(bool _we=true) {
+        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
+        short sc=0, ec=0, i, j;
+        for(short ind=0; ind<sold[_we].size(); ind++) {
+            i = sold[_we][ind].X; j = sold[_we][ind].Y;
+            if(i == -1 && j == -1) continue;
+            // Searching for vertical cannons (Case : V)
+            if(i != 0 && i != _row-1)
+                if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
+                    sc+=4;
+            // Searching for horizontal cannons (Case : H)
+            if(j != 0 && j != _col-1)
+                if(board[i][j-1] == -_mark && board[i][j+1] == -_mark)
+                    sc+=1;
+            // Searching for diagonal cannons (Case : L or R)
+            if(!(j == 0 || i == 0 || j == _col-1 || i == _row-1)) {
+                if(board[i+1][j-1] == -_mark && board[i-1][j+1] == -_mark)
+                    sc+=3;
+                if(board[i-1][j-1] == -_mark && board[i+1][j+1] == -_mark)
+                    sc+=3;
+            }
+        }
+        _mark = -_mark;
+        for(short ind=0; ind<sold[!_we].size(); ind++) {
+            i = sold[!_we][ind].X; j = sold[!_we][ind].Y;
+            if(i == -1 && j == -1) continue;
+            // Searching for vertical cannons (Case : V)
+            if(i != 0 && i != _row-1)
+                if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
+                    ec+=4;
+            // Searching for horizontal cannons (Case : H)
+            if(j != 0 && j != _col-1)
+                if(board[i][j-1] == -_mark && board[i][j+1] == -_mark)
+                    ec+=1;
+            // Searching for diagonal cannons (Case : L or R)
+            if(!(j == 0 || i == 0 || j == _col-1 || i == _row-1)) {
+                if(board[i+1][j-1] == -_mark && board[i-1][j+1] == -_mark)
+                    ec+=3;
+                if(board[i-1][j-1] == -_mark && board[i+1][j+1] == -_mark)
+                    ec+=3;
+            }
+        }
+        return sc-ec;
+    }
+
+    /*
+     * Finding the no. of soldiers that are unsafe (for both enemy and us)
+     */
+    short unsafe_sold(bool _we=true) {
+        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
+        short l_forw = -_mark*forw; // Local forward
+        short i, j;
+        vector<vector<int>> _p = vector<vector<int>>(_row, vector<int>(_col, 0));
+        for(short ind=0; ind<sold[_we].size(); ind++) {
+            i = sold[_we][ind].X; j = sold[_we][ind].Y;
+            if(i == -1 && j == -1) continue;
+            if(j>0)
+                _p[i][j-1] = 1;
+            if(j<_col-1)
+                _p[i][j+1] = 1;
+            if(i+l_forw >= 0 && i+l_forw < _row) {
+                if(j > 0)
+                    _p[i+l_forw][j-1] = 1;
+                if(j < _col-1)
+                    _p[i+l_forw][j+1] = 1;
+                _p[i+l_forw][j] = 1;
+            }
+        }
+        short sm = 0;
+        for(int i=0; i<_row; i++)
+            for(int j=0; j<_col; j++)
+                if(_p[i][j] && (board[i][j] == -_mark)) {
+                        sm++;
+                }
+        _p.clear();
+        return sm;
+    }
+
     /*
     * Scoring function for the board
     * @param _b : input board
     */
-    short score() {
-        return (this->count(1)-this->count(-1))*5 + (this->count(2)-this->count(-2))*20;
+    double score(bool _we=true) {
+        short _can = cannon_scr(_we), _usafe_t = unsafe_sold(true), _usafe_f = unsafe_sold(false);
+        return this->count(1)*2.5-this->count(-1)*2.5 + this->count(2)*15-this->count(-2)*15 + _can - 3*_usafe_t + 3*_usafe_f;
     }
 
     vector<Board> get_all_moves(bool _we)
@@ -540,7 +623,7 @@ int main(int argc, char const *argv[]) {
             cout << "We lost :(\n";
             break;
         }
-        c = alpha_beta_search(c, 6, step);
+        c = alpha_beta_search(c, 5, step);
         step = !step;
     }
     return 0;
