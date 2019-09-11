@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 #include <iomanip>
 #include <exception>
 #include <assert.h>
@@ -67,6 +68,8 @@ private:
     }
 
 public:
+
+    string prev_step; // Step that lead to this game...
 
     /*
      * Constructor
@@ -142,6 +145,7 @@ public:
         res.pos()[curr.X][curr.Y] = 0;
         res.get_posi()[curr.X][curr.Y] = -1;
         res.get_posi()[next.X][next.Y] = ind;
+        res.prev_step = "S "+to_string(curr.Y)+" "+to_string(curr.X)+" M "+to_string(next.Y)+" "+to_string(next.X);
         return res;
     }
 
@@ -149,7 +153,7 @@ public:
      * Get new board object when cannon destroys an item
      * @param ps : position of the destroyed entity
      */
-    Board remove_player(pii ps, bool _we) {
+    Board remove_player(pii crr, pii ps, bool _we) {
         //cout<<flush<<"hi";
         Board res = *this;
         if(_we) {
@@ -168,7 +172,25 @@ public:
             res.soldiers()[!_we][ind] = {-1, -1};
         }
         res.pos()[ps.X][ps.Y] = 0;
+        res.prev_step = "S "+to_string(crr.Y)+" "+to_string(crr.X)+" B "+to_string(ps.Y)+" "+to_string(ps.X);
         return res;
+    }
+
+    /*
+     * Get the next state given a "step" string
+     */
+    Board next_state(string _stp) {
+        assert(_stp.length() == 11);
+        if(_stp[6] == 'M') {
+            return move_player({(int)(_stp[4]-'0'),(int)(_stp[2]-'0')}, {(int)(_stp[10]-'0'),(int)(_stp[8]-'0')}, false);
+        }
+        else if(_stp[6] == 'B') {
+            return remove_player({(int)(_stp[4]-'0'),(int)(_stp[2]-'0')}, {(int)(_stp[10]-'0'),(int)(_stp[8]-'0')}, false);
+        }
+        else {
+            cerr << flush << "Error in [next_state]\n";
+            throw new runtime_error("Error");
+        }
     }
 
     /*
@@ -358,61 +380,61 @@ public:
                 case 'V' : {
                     if(!(xo+3*l_forw < 0 || xo+3*l_forw >= _row))
                         if(-_mark*board[xo+3*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
-                            ans.pb(remove_player({xo+3*l_forw, yo}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo+3*l_forw, yo}, _we));
                     if(!(xo-3*l_forw < 0 || xo-3*l_forw >= _row))
                         if(-_mark*board[xo-3*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
-                            ans.pb(remove_player({xo-3*l_forw, yo}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo-3*l_forw, yo}, _we));
                     if(!(xo+4*l_forw < 0 || xo+4*l_forw >= _row))
                         if(-_mark*board[xo+4*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
-                            ans.pb(remove_player({xo+4*l_forw, yo}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo+4*l_forw, yo}, _we));
                     if(!(xo-4*l_forw < 0 || xo-4*l_forw >= _row))
                         if(-_mark*board[xo-4*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
-                            ans.pb(remove_player({xo-4*l_forw, yo}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo-4*l_forw, yo}, _we));
                     break;
                 }
                 case 'H' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col))
                         if(-_mark*board[xo][yo+3*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
-                            ans.pb(remove_player({xo, yo+3*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo, yo+3*l_forw}, _we));
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col))
                         if(-_mark*board[xo][yo-3*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
-                            ans.pb(remove_player({xo, yo-3*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _row))
                         if(-_mark*board[xo][yo+4*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
-                            ans.pb(remove_player({xo, yo+4*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _row))
                         if(-_mark*board[xo][yo-4*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
-                            ans.pb(remove_player({xo, yo-4*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo, yo-4*l_forw}, _we));
                     break;
                 }
                 case 'L' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
                         if(-_mark*board[xo-3*l_forw][yo+3*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
-                            ans.pb(remove_player({xo-3*l_forw, yo+3*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo-3*l_forw, yo+3*l_forw}, _we));
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
                         if(-_mark*board[xo+3*l_forw][yo-3*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
-                            ans.pb(remove_player({xo+3*l_forw, yo-3*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo+3*l_forw, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
                         if(-_mark*board[xo-4*l_forw][yo+4*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
-                            ans.pb(remove_player({xo-l_forw*4, yo+4*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo-l_forw*4, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
                         if(-_mark*board[xo+4*l_forw][yo-4*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
-                            ans.pb(remove_player({xo+4*l_forw, yo-4*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo+4*l_forw, yo-4*l_forw}, _we));
                     break;
                 }
                 case 'R' : {
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
                         if(-_mark*board[xo+3*l_forw][yo+3*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
-                            ans.pb(remove_player({xo+3*l_forw, yo+3*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo+3*l_forw, yo+3*l_forw}, _we));
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
                         if(-_mark*board[xo-3*l_forw][yo-3*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
-                            ans.pb(remove_player({xo-3*l_forw, yo-3*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo-3*l_forw, yo-3*l_forw}, _we));
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
                         if(-_mark*board[xo+4*l_forw][yo+4*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
-                            ans.pb(remove_player({xo+4*l_forw, yo+4*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo+4*l_forw, yo+4*l_forw}, _we));
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
                         if(-_mark*board[xo-4*l_forw][yo-4*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
-                            ans.pb(remove_player({xo-4*l_forw, yo-4*l_forw}, _we));
+                            ans.pb(remove_player({xo, yo}, {xo-4*l_forw, yo-4*l_forw}, _we));
                     break;
                 }
             }
@@ -500,7 +522,7 @@ public:
     */
     double score(bool _we=true) {
         short _can_t = cannon_scr(true), _can_f = cannon_scr(false), _usafe_t = unsafe_sold(true), _usafe_f = unsafe_sold(false);
-        return this->count(1)*2.5-this->count(-1)*2.5 + this->count(2)*15-this->count(-2)*15 + _can_t - _can_f + 3*_usafe_t - 3*_usafe_f;
+        return this->count(1)*2.5-this->count(-1)*2.5 + this->count(2)*30-this->count(-2)*25 + _can_t - _can_f + 3*_usafe_t - 3*_usafe_f;
     }
 
     vector<Board> get_all_moves(bool _we)
@@ -534,7 +556,6 @@ short max_value(Board& _b, short alpha, short beta, short depth) {
     if(depth == 0) return _b.score();
     short v = -inf;
     vector<Board> neighbours = _b.get_all_moves(1);
-    if(!neighbours.empty()) return _b.score();
     for(auto& _c : neighbours) {
         v = max(v, min_value(_c, alpha, beta, depth-1));
         if(v >= beta) return v;
@@ -547,7 +568,6 @@ short min_value(Board& _b, short alpha, short beta, short depth) {
     if(depth == 0) return _b.score();
     short v = inf;
     vector<Board> neighbours = _b.get_all_moves(0);
-    if(!neighbours.empty()) return _b.score();
     for(auto& _c : neighbours) {
         v = min(v, max_value(_c, alpha, beta, depth-1));
         if(v <= alpha) return v;
@@ -560,7 +580,7 @@ Board alpha_beta_search(Board& _b, short depth, bool _we)
 {
     //cout<<flush<<"hi";
     short alpha = -inf, beta = inf, tmp, v, k;
-    Board best = NULL; vector<Board> neighbours = _b.get_all_moves(_we);
+    Board best; vector<Board> neighbours = _b.get_all_moves(_we);
     k = neighbours.size();
     if(_we) {
         v = -inf;
@@ -589,24 +609,41 @@ Board alpha_beta_search(Board& _b, short depth, bool _we)
 
 int main(int argc, char const *argv[]) {
     /* code */
-    bool is_black = 0;
+    bool is_black;
+    cin >> is_black;
+
+    if(is_black) cout << "Computer is black...\n";
+    else cout << "Computer is white...\n";
+
     _row = 8;
     _col = 8;
     forw = (is_black == true) ? -1 : 1;
+
     Board c = Board(is_black);
+    c.prev_step = "Start";
+
     bool step = is_black;
-    for(int i=0; i<1000; i++) {
-        c.print_board();
-        cout << flush << c.score() << "\n";
+    string user_step;
+    getline(cin, user_step);
+
+    while(1) {
         if(c.count(-2) == 2) {
-            cout << "We won!\n";
+            cout << "Human won...\n";
             break;
         }
         if(c.count(2) == 2) {
-            cout << "We lost :(\n";
+            cout << "Bot won...\n";
             break;
         }
-        c = alpha_beta_search(c, 5, step);
+        if(step) {
+            c = alpha_beta_search(c, 5, step);
+            cout << c.prev_step << "\n";
+        }
+        else {
+            cout << "Enter move: ";
+            getline(cin, user_step);
+            c = c.next_state(user_step);
+        }
         step = !step;
     }
     return 0;
