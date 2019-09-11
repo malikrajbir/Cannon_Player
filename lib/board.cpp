@@ -534,6 +534,7 @@ short max_value(Board& _b, short alpha, short beta, short depth) {
     if(depth == 0) return _b.score();
     short v = -inf;
     vector<Board> neighbours = _b.get_all_moves(1);
+    if(!neighbours.empty()) return _b.score();
     for(auto& _c : neighbours) {
         v = max(v, min_value(_c, alpha, beta, depth-1));
         if(v >= beta) return v;
@@ -546,6 +547,7 @@ short min_value(Board& _b, short alpha, short beta, short depth) {
     if(depth == 0) return _b.score();
     short v = inf;
     vector<Board> neighbours = _b.get_all_moves(0);
+    if(!neighbours.empty()) return _b.score();
     for(auto& _c : neighbours) {
         v = min(v, max_value(_c, alpha, beta, depth-1));
         if(v <= alpha) return v;
