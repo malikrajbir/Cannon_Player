@@ -591,14 +591,13 @@ void sort_boards(vector<Board>& ans, bool _we)
 double min_value(Board, double, double, short);
 
 double max_value(Board _b, double alpha, double beta, short depth) {
-    if(depth == 1) {
+    if(um.find(_b) == um.end())
         um[_b] = _b.get_all_moves(1);
+
+    if(depth == 1) {
         if(um[_b].empty()) {cout<<"ho"; return -inf;}
         return um[_b][0].score();
     }
-
-    if(um.find(_b) == um.end())
-        um[_b] = _b.get_all_moves(1);
 
     vector<Board> &curr = um[_b];
     double v = -inf, tmp; short k = curr.size();
@@ -617,14 +616,13 @@ double max_value(Board _b, double alpha, double beta, short depth) {
 }
 
 double min_value(Board _b, double alpha, double beta, short depth) {
-    if(depth == 1) {
+    if(um.find(_b) == um.end())
         um[_b] = _b.get_all_moves(0);
+    
+    if(depth == 1) {
         if(um[_b].empty()) {cout<<"hi"; return inf;}      // handle for stalemate
         return um[_b][0].score();
     }
-
-    if(um.find(_b) == um.end())
-        um[_b] = _b.get_all_moves(0);
 
     vector<Board> &curr = um[_b];
     double v = inf, tmp; short k = curr.size();
@@ -653,7 +651,7 @@ Board alpha_beta_search(Board _b, short depth)
     um[_b] = neighbours;
     vector<Board> &curr = um[_b];
 
-    for(short d=depth; d<=depth;d++) {
+    for(short d=2; d<=depth;d++) {
         alpha = v = -inf; beta = inf;
         for(int i=0;i<k;i++) {
             tmp = min_value(curr[i], alpha, beta, d-1);
