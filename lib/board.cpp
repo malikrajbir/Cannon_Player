@@ -135,9 +135,7 @@ public:
         assert(ind != -1);
         assert(res.soldiers()[_we][ind] == curr);
         res.soldiers()[_we][ind] = next;
-        if(posi[next.X][next.Y] != -1)
-        {
-            assert(posi[next.X][next.Y] < res.soldiers()[!_we].size());
+        if(posi[next.X][next.Y] != -1) {
             res.soldiers()[!_we][posi[next.X][next.Y]] = {-1, -1};
         }
         res.pos()[next.X][next.Y] = res.pos()[curr.X][curr.Y];
@@ -256,8 +254,6 @@ public:
      * returns all soldier moves of present state of board
      */
     void get_all_soldier_moves(vector<Board>& ans, bool _we) {
-        short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
-        short l_forw = -_mark*forw; // Local forward
         for(auto& i :sold[_we])
             if(i.X != -1 || i.Y != -1)
                 get_moves_for_soldiers(ans, i.X, i.Y, _we);
@@ -520,19 +516,7 @@ public:
         scr = val;
     }
 
-    /*
-    * Scoring function for the board
-    * @param _b : input board
-    */
-    double score() {
-        if(scr != __DBL_MAX__) return scr;
-        short _can_t = cannon_scr(true), _can_f = cannon_scr(false), _usafe_t = unsafe_sold(true), _usafe_f = unsafe_sold(false);
-        scr = this->count(1)*3.0-this->count(-1)*2.5 + this->count(2)*35-this->count(-2)*35 + _can_t - _can_f + 2.5*_usafe_t - 2.5*_usafe_f;
-        return scr;
-    }
-
-    vector<Board> get_all_moves(bool _we)
-    {
+    vector<Board> get_all_moves(bool _we) {
         vector<Board> ans;
         get_all_cannon_moves(ans, _we);
         get_all_soldier_moves(ans, _we);
@@ -554,9 +538,50 @@ public:
         }
         cout << "\n";
     }
+
+        /*
+    * Scoring function for the board
+    * @param _b : input board
+    */
+    double score() {
+        if(scr != __DBL_MAX__) return scr;
+        scr = ssc;
+        if(etc == 2) {
+            if(stc == 4) scr += 50000;
+            else scr += 30000;
+            return scr;
+        }
+        if(stc == 2) {
+            if(etc == 4) scr -= 50000;
+            else scr -= 30000;
+            return scr;
+        }
+
+        if(esc == 0) {
+            if(stc == 4)
+                scr += ((etc == 3) ? 50000 : 30000);
+            else
+                scr += ((etc == 3) ? 30000 : 10000);
+            return scr;
+        }
+        if(ssc == 0) {
+            if(etc == 4)
+                scr -= ((stc == 3) ? 50000 : 30000);
+            else
+                scr -= ((stc == 3) ? 30000 : 10000);
+            return scr;
+        }
+
+        scr = 0;
+        if(etc == 3) scr += 1000;
+        if(stc == 3) scr -= 1000;    // difference will depend on other weights
+        short _can_t = cannon_scr(true), _can_f = cannon_scr(false), _usafe_t = unsafe_sold(true), _usafe_f = unsafe_sold(false);
+        scr += this->count(1)*3.0-this->count(-1)*2.5 + _can_t - _can_f + 2.5*_usafe_t - 2.5*_usafe_f;
+        return scr;
+    }
 };
 
-int mod = 104729;
+int mod = 7297;
 
 struct hash_board {
     size_t operator()(const Board& b) const {
@@ -579,6 +604,7 @@ struct board_equal{
 };
 
 unordered_map<Board, vector<Board>, hash_board, board_equal> um;
+unordered_map<Board, short, hash_board, board_equal> ud;
 
 void sort_boards(vector<Board>& ans, bool _we)
 {
@@ -588,21 +614,31 @@ void sort_boards(vector<Board>& ans, bool _we)
         sort(ans.begin(), ans.end(), [](Board& b1, Board& b2) { return b1.score() < b2.score(); });
 }
 
-double min_value(Board, double, double, short);
+double min_value(Board, double, double, short, short);
 
-double max_value(Board _b, double alpha, double beta, short depth) {
-    if(um.find(_b) == um.end())
+double max_value(Board _b, double alpha, double beta, short curr_depth, short max_depth) {
+    if(_b.count(2) == 2 || _b.count(-2) == 2 || _b.count(1) == 0 || _b.count(-1) == 0)
+        return _b.score();
+    
+    if(um.find(_b) == um.end()) {
         um[_b] = _b.get_all_moves(1);
-
-    if(depth == 1) {
-        if(um[_b].empty()) {cout<<"ho"; return -inf;}
-        return um[_b][0].score();
+        ud[_b] = curr_depth;
     }
 
     vector<Board> &curr = um[_b];
+
+    if(curr.empty()) {
+        if(_b.count(2) == _b.count(-2)) return -10000;
+        if(_b.count(2) > _b.count(-2)) return 10000;
+        return -30000;
+    }
+
+    if(curr_depth == max_depth-1 || ud[_b] != curr_depth)
+        return curr[0].score();
+
     double v = -inf, tmp; short k = curr.size();
     for(int i=0;i<k;i++) {
-        tmp = min_value(curr[i], alpha, beta, depth-1);
+        tmp = min_value(curr[i], alpha, beta, curr_depth+1, max_depth);
         curr[i].set_score(tmp);
         if(tmp > v) v = tmp;
         if(v >= beta) {
@@ -615,19 +651,29 @@ double max_value(Board _b, double alpha, double beta, short depth) {
     return v;
 }
 
-double min_value(Board _b, double alpha, double beta, short depth) {
-    if(um.find(_b) == um.end())
+double min_value(Board _b, double alpha, double beta, short curr_depth, short max_depth) {
+    if(_b.count(2) == 2 || _b.count(-2) == 2 || _b.count(1) == 0 || _b.count(-1) == 0)
+        return _b.score();
+
+    if(um.find(_b) == um.end()) {
         um[_b] = _b.get_all_moves(0);
-    
-    if(depth == 1) {
-        if(um[_b].empty()) {cout<<"hi"; return inf;}      // handle for stalemate
-        return um[_b][0].score();
+        ud[_b] = curr_depth;
     }
 
     vector<Board> &curr = um[_b];
+
+    if(curr.empty()) {
+        if(_b.count(2) == _b.count(-2)) return 10000;
+        if(_b.count(2) > _b.count(-2)) return 30000;
+        return -10000;
+    }
+    
+    if(curr_depth == max_depth-1 || ud[_b] != curr_depth)
+        return curr[0].score();
+
     double v = inf, tmp; short k = curr.size();
     for(int i=0;i<k;i++) {
-        tmp = max_value(curr[i], alpha, beta, depth-1);
+        tmp = max_value(curr[i], alpha, beta, curr_depth+1, max_depth);
         curr[i].set_score(tmp);
         if(tmp < v) v = tmp;
         if(v <= alpha) {
@@ -642,28 +688,27 @@ double min_value(Board _b, double alpha, double beta, short depth) {
 
 Board alpha_beta_search(Board _b, short depth)
 {
-    double alpha = -inf, beta = inf, v, tmp; short k;
-    Board best = _b; vector<Board> neighbours = _b.get_all_moves(1);
-    k = neighbours.size();
-    if(k == 0) return best;
-    else best = neighbours[0];
+    double alpha = -inf, beta = inf, v, tmp;
+    vector<Board> neighbours = _b.get_all_moves(1);
+    short k = neighbours.size();
+    if(k == 0) return _b;
     
-    um[_b] = neighbours;
+    um[_b] = neighbours; ud[_b] = 0;
     vector<Board> &curr = um[_b];
 
     for(short d=2; d<=depth;d++) {
         alpha = v = -inf; beta = inf;
         for(int i=0;i<k;i++) {
-            tmp = min_value(curr[i], alpha, beta, d-1);
+            tmp = min_value(curr[i], alpha, beta, 1, d);
             curr[i].set_score(tmp);
             if(tmp > v) v = tmp;
             if(v > alpha) alpha = v;
         }
         sort_boards(curr, 1);
     }
-    best = curr[0]; //best.print_board();
-    //cout<<best.score()<<"\n"; 
-    //cout<<"Number of nodes generated: "<<um.size()<<"\n";
+    Board best = curr[0]; best.print_board();
+    cout<<best.score()<<"\n"; 
+    cout<<"Number of nodes generated: "<<um.size()<<"\n";
     um.clear();
     return best;
 }
@@ -684,7 +729,7 @@ int main(int argc, char const *argv[]) {
 
     double t; cin >> t;
 
-    Board c = Board(is_black);
+    Board c = Board(is_black), tmp;
     c.prev_step = "Start";
 
     bool step = is_black;
@@ -692,7 +737,9 @@ int main(int argc, char const *argv[]) {
 
     while(1) {
         if(step) {
-            c = alpha_beta_search(c, 5);
+            tmp = alpha_beta_search(c, 5);
+            if(tmp.pos() == c.pos()) return 0;
+            c = tmp;
             cout << c.prev_step << endl;
         }
         else {
