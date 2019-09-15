@@ -527,7 +527,7 @@ public:
     double score() {
         if(scr != __DBL_MAX__) return scr;
         short _can_t = cannon_scr(true), _can_f = cannon_scr(false), _usafe_t = unsafe_sold(true), _usafe_f = unsafe_sold(false);
-        scr = this->count(1)*3.5-this->count(-1)*0.5 + this->count(2)*35-this->count(-2)*35 + _can_t - _can_f + 2.5*_usafe_t - 0.5*_usafe_f;
+        scr = this->count(1)*3.0-this->count(-1)*2.5 + this->count(2)*35-this->count(-2)*35 + _can_t - _can_f + 2.5*_usafe_t - 2.5*_usafe_f;
         return scr;
     }
 
@@ -574,13 +574,7 @@ struct hash_board {
 
 struct board_equal{
     bool operator()(const Board &b1, const Board &b2) const {
-        vector<vector<short>> board1 = b1.get_board();
-        vector<vector<short>> board2 = b2.get_board();
-        for(short i=0;i<_row;i++)
-            for(short j=0;j<_col;j++) 
-                if(board1[i][j] != board2[i][j])
-                    return false;
-        return true;
+        return b1.get_board() == b2.get_board();
     }
 };
 
@@ -597,11 +591,15 @@ void sort_boards(vector<Board>& ans, bool _we)
 double min_value(Board, double, double, short);
 
 double max_value(Board _b, double alpha, double beta, short depth) {
-    if(um.find(_b) == um.end() || depth == 1) {
+    if(depth == 1) {
         um[_b] = _b.get_all_moves(1);
         if(um[_b].empty()) {cout<<"ho"; return -inf;}
         return um[_b][0].score();
     }
+
+    if(um.find(_b) == um.end())
+        um[_b] = _b.get_all_moves(1);
+
     vector<Board> &curr = um[_b];
     double v = -inf, tmp; short k = curr.size();
     for(int i=0;i<k;i++) {
@@ -610,7 +608,7 @@ double max_value(Board _b, double alpha, double beta, short depth) {
         if(tmp > v) v = tmp;
         if(v >= beta) {
             sort_boards(curr, 1);
-            return v;
+            return curr[0].score();
         }
         if(v > alpha) alpha = v;
     }
@@ -619,11 +617,15 @@ double max_value(Board _b, double alpha, double beta, short depth) {
 }
 
 double min_value(Board _b, double alpha, double beta, short depth) {
-    if(um.find(_b) == um.end() || depth == 1) {
+    if(depth == 1) {
         um[_b] = _b.get_all_moves(0);
         if(um[_b].empty()) {cout<<"hi"; return inf;}      // handle for stalemate
         return um[_b][0].score();
     }
+
+    if(um.find(_b) == um.end())
+        um[_b] = _b.get_all_moves(0);
+
     vector<Board> &curr = um[_b];
     double v = inf, tmp; short k = curr.size();
     for(int i=0;i<k;i++) {
@@ -632,7 +634,7 @@ double min_value(Board _b, double alpha, double beta, short depth) {
         if(tmp < v) v = tmp;
         if(v <= alpha) {
             sort_boards(curr, 0);
-            return v;
+            return curr[0].score();
         }
         if(v < beta) beta = v;
     }
@@ -640,10 +642,10 @@ double min_value(Board _b, double alpha, double beta, short depth) {
     return v;
 }
 
-Board alpha_beta_search(Board _b, short depth, bool _we)
+Board alpha_beta_search(Board _b, short depth)
 {
     double alpha = -inf, beta = inf, v, tmp; short k;
-    Board best = _b; vector<Board> neighbours = _b.get_all_moves(_we);
+    Board best = _b; vector<Board> neighbours = _b.get_all_moves(1);
     k = neighbours.size();
     if(k == 0) return best;
     else best = neighbours[0];
@@ -651,7 +653,7 @@ Board alpha_beta_search(Board _b, short depth, bool _we)
     um[_b] = neighbours;
     vector<Board> &curr = um[_b];
 
-    for(short d=2; d<=depth;d++) {
+    for(short d=depth; d<=depth;d++) {
         alpha = v = -inf; beta = inf;
         for(int i=0;i<k;i++) {
             tmp = min_value(curr[i], alpha, beta, d-1);
@@ -659,10 +661,11 @@ Board alpha_beta_search(Board _b, short depth, bool _we)
             if(tmp > v) v = tmp;
             if(v > alpha) alpha = v;
         }
-        sort_boards(curr, _we);
+        sort_boards(curr, 1);
     }
-    best = curr[0]; best.print_board();
-    cout<<"Number of nodes generated: "<<um.size()<<"\n";
+    best = curr[0]; //best.print_board();
+    //cout<<best.score()<<"\n"; 
+    //cout<<"Number of nodes generated: "<<um.size()<<"\n";
     um.clear();
     return best;
 }
@@ -691,7 +694,7 @@ int main(int argc, char const *argv[]) {
 
     while(1) {
         if(step) {
-            c = alpha_beta_search(c, 5, step);
+            c = alpha_beta_search(c, 5);
             cout << c.prev_step << endl;
         }
         else {
