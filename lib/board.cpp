@@ -496,20 +496,20 @@ public:
                     sc -= 0.5;
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col))
                         if(-_mark*board[xo][yo+3*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
-                            sc += 0.5;
+                            sc += 0.6;
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col))
                         if(-_mark*board[xo][yo-3*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
-                            sc += 0.5;
+                            sc += 0.6;
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _row))
                         if(-_mark*board[xo][yo+4*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
-                            sc += 0.5;
+                            sc += 0.6;
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _row))
                         if(-_mark*board[xo][yo-4*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
-                            sc += 0.5;
+                            sc += 0.6;
                     break;
                 }
                 case 'L' : {
-                    sc -= 0.5;
+                    sc -= 0.25;
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
                         if(-_mark*board[xo-3*l_forw][yo+3*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
                             sc += 1;
@@ -525,7 +525,7 @@ public:
                     break;
                 }
                 case 'R' : {
-                    sc -= 0.5;
+                    sc -= 0.25;
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
                         if(-_mark*board[xo+3*l_forw][yo+3*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
                             sc += 1;
@@ -645,52 +645,48 @@ public:
         if(stc == 3) scr -= 10000;    // difference will depend on other weights
         // Setting parameters
         // Ist 11 parameters (Cannons)
-        if(forw == -1) {
             // V1
-            param[0] = (board[2][0]==1)&&(board[3][0]==1)&&(board[4][0]==1)&&(board[0][0]==-2)&&(board[1][0]==0);
-            param[1] = (board[2][2]==1)&&(board[3][2]==1)&&(board[4][2]==1)&&(board[0][2]==-2)&&(board[1][2]==0);
-            param[2] = (board[2][4]==1)&&(board[3][4]==1)&&(board[4][4]==1)&&(board[0][4]==-2)&&(board[1][4]==0);
-            param[3] = (board[2][6]==1)&&(board[3][6]==1)&&(board[4][6]==1)&&(board[0][6]==-2)&&(board[1][6]==0);
-            // V2
-            param[4] = (board[5][0]==1)&&(board[3][0]==1)&&(board[4][0]==1)&&(board[0][0]==-2)&&(board[2][0]==0);
-            param[5] = (board[5][2]==1)&&(board[3][2]==1)&&(board[4][2]==1)&&(board[0][2]==-2)&&(board[2][2]==0);
-            param[6] = (board[5][4]==1)&&(board[3][4]==1)&&(board[4][4]==1)&&(board[0][4]==-2)&&(board[2][4]==0);
-            param[7] = (board[5][6]==1)&&(board[3][6]==1)&&(board[4][6]==1)&&(board[0][6]==-2)&&(board[2][6]==0);
-            // D T1
-            param[8] = (board[2][2]==1)&&(board[3][3]==1)&&(board[4][4]==1)&&(board[0][0]==-2)&&(board[1][1]==0);
-            param[9] = (board[5][5]==1)&&(board[3][3]==1)&&(board[4][4]==1)&&(board[0][0]==-2)&&(board[2][2]==0);
-            // D T2
-            param[10] = (board[2][4]==1)&&(board[3][5]==1)&&(board[4][6]==1)&&(board[0][2]==-2)&&(board[1][3]==0);
-            param[11] = (board[5][7]==1)&&(board[3][3]==1)&&(board[4][4]==1)&&(board[0][2]==-2)&&(board[2][4]==0);
-            // D T3
-            param[12] = (board[2][2]==1)&&(board[3][1]==1)&&(board[4][0]==1)&&(board[0][4]==-2)&&(board[1][3]==0);
-            // D T4
-            param[13] = (board[2][4]==1)&&(board[3][3]==1)&&(board[4][2]==1)&&(board[0][6]==-2)&&(board[1][5]==0);
-            param[14] = (board[5][1]==1)&&(board[3][3]==1)&&(board[4][2]==1)&&(board[0][6]==-2)&&(board[2][4]==0);
-        }
-        else {
-                        // V1
-            param[0] = (board[5][7-0]==1)&&(board[4][7-0]==1)&&(board[3][7-0]==1)&&(board[7-0][7-0]==-2)&&(board[7-1][7-0]==0);
-            param[1] = (board[5][7-2]==1)&&(board[4][7-2]==1)&&(board[3][7-2]==1)&&(board[7-0][7-2]==-2)&&(board[7-1][7-2]==0);
-            param[2] = (board[5][7-4]==1)&&(board[4][7-4]==1)&&(board[3][7-4]==1)&&(board[7-0][7-4]==-2)&&(board[7-1][7-4]==0);
-            param[3] = (board[5][7-6]==1)&&(board[4][7-6]==1)&&(board[3][7-6]==1)&&(board[7-0][7-6]==-2)&&(board[7-1][7-6]==0);
-            // V2
-            param[4] = (board[2][7-0]==1)&&(board[3][7-0]==1)&&(board[4][7-0]==1)&&(board[7-0][7-0]==-2)&&(board[7-2][7-0]==0);
-            param[5] = (board[2][7-2]==1)&&(board[3][7-2]==1)&&(board[4][7-2]==1)&&(board[7-0][7-2]==-2)&&(board[7-2][7-2]==0);
-            param[6] = (board[2][7-4]==1)&&(board[3][7-4]==1)&&(board[4][7-4]==1)&&(board[7-0][7-4]==-2)&&(board[7-2][7-4]==0);
-            param[7] = (board[2][7-6]==1)&&(board[3][7-6]==1)&&(board[4][7-6]==1)&&(board[7-0][7-6]==-2)&&(board[7-2][7-6]==0);
-            // D T1
-            param[8] = (board[2][2]==1)&&(board[3][3]==1)&&(board[4][4]==1)&&(board[7-0][7-0]==-2)&&(board[7-1][7-1]==0);
-            param[9] = (board[5][5]==1)&&(board[3][3]==1)&&(board[4][4]==1)&&(board[7-0][7-0]==-2)&&(board[7-2][7-2]==0);
-            // D T2
-            param[10] = (board[7-2][7-4]==1)&&(board[7-3][7-5]==1)&&(board[7-4][7-6]==1)&&(board[7-0][7-2]==-2)&&(board[7-1][7-3]==0);
-            param[11] = (board[7-5][7-7]==1)&&(board[7-3][7-3]==1)&&(board[7-4][7-4]==1)&&(board[7-0][7-2]==-2)&&(board[7-2][7-4]==0);
-            // D T3
-            param[12] = (board[7-2][7-2]==1)&&(board[7-3][7-1]==1)&&(board[7-4][7-0]==1)&&(board[7-0][7-4]==-2)&&(board[7-1][7-3]==0);
-            // D T4
-            param[13] = (board[7-2][7-4]==1)&&(board[7-3][7-3]==1)&&(board[7-4][7-2]==1)&&(board[7-0][7-6]==-2)&&(board[7-1][7-5]==0);
-            param[14] = (board[7-5][7-1]==1)&&(board[7-3][7-3]==1)&&(board[7-4][7-2]==1)&&(board[7-0][7-6]==-2)&&(board[7-2][7-4]==0);
-        }
+        param[0] = -forw*((board[2][0]==-forw)&&(board[3][0]==-forw)&&(board[4][0]==-forw)&&(board[0][0]==forw*2)&&(board[1][0]==0));
+        param[1] = -forw*((board[2][2]==-forw)&&(board[3][2]==-forw)&&(board[4][2]==-forw)&&(board[0][2]==forw*2)&&(board[1][2]==0));
+        param[2] = -forw*((board[2][4]==-forw)&&(board[3][4]==-forw)&&(board[4][4]==-forw)&&(board[0][4]==forw*2)&&(board[1][4]==0));
+        param[3] = -forw*((board[2][6]==-forw)&&(board[3][6]==-forw)&&(board[4][6]==-forw)&&(board[0][6]==forw*2)&&(board[1][6]==0));
+        // V2
+        param[4] = -forw*((board[5][0]==-forw)&&(board[3][0]==-forw)&&(board[4][0]==-forw)&&(board[0][0]==forw*2)&&(board[2][0]==0));
+        param[5] = -forw*((board[5][2]==-forw)&&(board[3][2]==-forw)&&(board[4][2]==-forw)&&(board[0][2]==forw*2)&&(board[2][2]==0));
+        param[6] = -forw*((board[5][4]==-forw)&&(board[3][4]==-forw)&&(board[4][4]==-forw)&&(board[0][4]==forw*2)&&(board[2][4]==0));
+        param[7] = -forw*((board[5][6]==-forw)&&(board[3][6]==-forw)&&(board[4][6]==-forw)&&(board[0][6]==forw*2)&&(board[2][6]==0));
+        // D T1
+        param[8] = -forw*((board[2][2]==-forw)&&(board[3][3]==-forw)&&(board[4][4]==-forw)&&(board[0][0]==forw*2)&&(board[1][1]==0));
+        param[9] = -forw*((board[5][5]==-forw)&&(board[3][3]==-forw)&&(board[4][4]==-forw)&&(board[0][0]==forw*2)&&(board[2][2]==0));
+        // D T2
+        param[10] = -forw*((board[2][4]==-forw)&&(board[3][5]==-forw)&&(board[4][6]==-forw)&&(board[0][2]==forw*2)&&(board[1][3]==0));
+        param[11] = -forw*((board[5][7]==-forw)&&(board[3][3]==-forw)&&(board[4][4]==-forw)&&(board[0][2]==forw*2)&&(board[2][4]==0));
+        // D T3
+        param[12] = -forw*((board[2][2]==-forw)&&(board[3][1]==-forw)&&(board[4][0]==-forw)&&(board[0][4]==forw*2)&&(board[1][3]==0));
+        // D T4
+        param[13] = -forw*((board[2][4]==-forw)&&(board[3][3]==-forw)&&(board[4][2]==-forw)&&(board[0][6]==forw*2)&&(board[1][5]==0));
+        param[14] = -forw*((board[5][1]==-forw)&&(board[3][3]==-forw)&&(board[4][2]==-forw)&&(board[0][6]==forw*2)&&(board[2][4]==0));
+        // V1
+        param[0] += forw*((board[5][7-0]==forw)&&(board[4][7-0]==forw)&&(board[3][7-0]==forw)&&(board[7-0][7-0]==-forw*2)&&(board[7-1][7-0]==0));
+        param[1] += forw*((board[5][7-2]==forw)&&(board[4][7-2]==forw)&&(board[3][7-2]==forw)&&(board[7-0][7-2]==-forw*2)&&(board[7-1][7-2]==0));
+        param[2] += forw*((board[5][7-4]==forw)&&(board[4][7-4]==forw)&&(board[3][7-4]==forw)&&(board[7-0][7-4]==-forw*2)&&(board[7-1][7-4]==0));
+        param[3] += forw*((board[5][7-6]==forw)&&(board[4][7-6]==forw)&&(board[3][7-6]==forw)&&(board[7-0][7-6]==-forw*2)&&(board[7-1][7-6]==0));
+        // V2
+        param[4] += forw*((board[2][7-0]==forw)&&(board[3][7-0]==forw)&&(board[4][7-0]==forw)&&(board[7-0][7-0]==-forw*2)&&(board[7-2][7-0]==0));
+        param[5] += forw*((board[2][7-2]==forw)&&(board[3][7-2]==forw)&&(board[4][7-2]==forw)&&(board[7-0][7-2]==-forw*2)&&(board[7-2][7-2]==0));
+        param[6] += forw*((board[2][7-4]==forw)&&(board[3][7-4]==forw)&&(board[4][7-4]==forw)&&(board[7-0][7-4]==-forw*2)&&(board[7-2][7-4]==0));
+        param[7] += forw*((board[2][7-6]==forw)&&(board[3][7-6]==forw)&&(board[4][7-6]==forw)&&(board[7-0][7-6]==-forw*2)&&(board[7-2][7-6]==0));
+        // D T1
+        param[8] += forw*((board[2][2]==forw)&&(board[3][3]==forw)&&(board[4][4]==forw)&&(board[7-0][7-0]==-forw*2)&&(board[7-1][7-1]==0));
+        param[9] += forw*((board[5][5]==forw)&&(board[3][3]==forw)&&(board[4][4]==forw)&&(board[7-0][7-0]==-forw*2)&&(board[7-2][7-2]==0));
+        // D T2
+        param[10] += forw*((board[7-2][7-4]==forw)&&(board[7-3][7-5]==forw)&&(board[7-4][7-6]==forw)&&(board[7-0][7-2]==-forw*2)&&(board[7-1][7-3]==0));
+        param[11] += forw*((board[7-5][7-7]==forw)&&(board[7-3][7-3]==forw)&&(board[7-4][7-4]==forw)&&(board[7-0][7-2]==-forw*2)&&(board[7-2][7-4]==0));
+        // D T3
+        param[12] += forw*((board[7-2][7-2]==forw)&&(board[7-3][7-1]==forw)&&(board[7-4][7-0]==forw)&&(board[7-0][7-4]==-forw*2)&&(board[7-1][7-3]==0));
+        // D T4
+        param[13] += forw*((board[7-2][7-4]==forw)&&(board[7-3][7-3]==forw)&&(board[7-4][7-2]==forw)&&(board[7-0][7-6]==-forw*2)&&(board[7-1][7-5]==0));
+        param[14] += forw*((board[7-5][7-1]==forw)&&(board[7-3][7-3]==forw)&&(board[7-4][7-2]==forw)&&(board[7-0][7-6]==-forw*2)&&(board[7-2][7-4]==0));
         // Soldier neighbour relations
         param[15] = unsafe_sold(1, 1);
         param[16] = unsafe_sold(1, 0);
@@ -699,9 +695,9 @@ public:
         // Cannon score
         param[19] = cannon_scr(1);
         param[20] = cannon_scr(0);
-        // Enemy score
-        param[21] = ssc*100/pow(ssc+0.001, 0.5);
-        param[22] = esc*100/pow(esc+0.001, 0.5);
+        // Soldier score
+        param[21] = 100*pow(ssc, 0.5);
+        param[22] = 100*pow(esc, 0.5);
 
         // Soldiers around townhall
         // My soldiers around the enemy townhall thats not guarded
