@@ -700,8 +700,8 @@ public:
         param[19] = cannon_scr(1);
         param[20] = cannon_scr(0);
         // Enemy score
-        param[21] = ssc;
-        param[22] = esc;
+        param[21] = ssc*100/pow(ssc+0.001, 0.5);
+        param[22] = esc*100/pow(esc+0.001, 0.5);
 
         // Soldiers around townhall
         // My soldiers around the enemy townhall thats not guarded
@@ -710,29 +710,29 @@ public:
             // My Townhall
             // My soldiers
             param[23] = (board[7][7] == 2)&&((board[6][7]==1)||(board[7][6]==1)||(board[6][6]==1));
-            param[24] = (board[7][5] == 2)&&((board[6][5]==1)||(board[7][4]==1)||(board[6][4]==1));
-            param[25] = (board[7][3] == 2)&&((board[6][3]==1)||(board[7][2]==1)||(board[6][2]==1));
-            param[26] = (board[7][1] == 2)&&((board[6][1]==1)||(board[7][0]==1)||(board[6][0]==1));
+            param[24] = (board[7][5] == 2)&&((board[6][5]==1)||(board[7][4]==1)||(board[6][4]==1)||(board[7][6]==1)||(board[6][6]==1));
+            param[25] = (board[7][3] == 2)&&((board[6][3]==1)||(board[7][2]==1)||(board[6][2]==1)||(board[7][4]==1)||(board[6][4]==1));
+            param[26] = (board[7][1] == 2)&&((board[6][1]==1)||(board[7][0]==1)||(board[6][0]==1)||(board[7][2]==1)||(board[6][2]==1));
             // Enemy Townhall
             // My soldiers
             param[27] = (board[7-7][7-7] == -2)&&((board[7-6][7-7]==1)||(board[7-7][7-6]==1)||(board[7-6][7-6]==1));
-            param[28] = (board[7-7][7-5] == -2)&&((board[7-6][7-5]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1));
-            param[29] = (board[7-7][7-3] == -2)&&((board[7-6][7-3]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1));
-            param[30] = (board[7-7][7-1] == -2)&&((board[7-6][7-1]==1)||(board[7-7][7-0]==1)||(board[7-6][7-0]==1));
+            param[28] = (board[7-7][7-5] == -2)&&((board[7-6][7-5]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1)||(board[7-7][7-6]==1)||(board[7-6][7-6]==1));
+            param[29] = (board[7-7][7-3] == -2)&&((board[7-6][7-3]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1));
+            param[30] = (board[7-7][7-1] == -2)&&((board[7-6][7-1]==1)||(board[7-7][7-0]==1)||(board[7-6][7-0]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1));
         }
         else {
             // My Townhall
             // My soldiers
             param[23] = (board[7-7][7-7] == 2)&&((board[7-6][7-7]==1)||(board[7-7][7-6]==1)||(board[7-6][7-6]==1));
-            param[24] = (board[7-7][7-5] == 2)&&((board[7-6][7-5]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1));
-            param[25] = (board[7-7][7-3] == 2)&&((board[7-6][7-3]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1));
-            param[26] = (board[7-7][7-1] == 2)&&((board[7-6][7-1]==1)||(board[7-7][7-0]==1)||(board[7-6][7-0]==1));
+            param[24] = (board[7-7][7-5] == 2)&&((board[7-6][7-5]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1)||(board[7-7][7-6]==1)||(board[7-6][7-6]==1));
+            param[25] = (board[7-7][7-3] == 2)&&((board[7-6][7-3]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1));
+            param[26] = (board[7-7][7-1] == 2)&&((board[7-6][7-1]==1)||(board[7-7][7-0]==1)||(board[7-6][7-0]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1));
             // Enemy Townhall
             // My soldiers
             param[27] = (board[7][7] == -2)&&((board[6][7]==1)||(board[7][6]==1)||(board[6][6]==1));
-            param[28] = (board[7][5] == -2)&&((board[6][5]==1)||(board[7][4]==1)||(board[6][4]==1));
-            param[29] = (board[7][3] == -2)&&((board[6][3]==1)||(board[7][2]==1)||(board[6][2]==1));
-            param[30] = (board[7][1] == -2)&&((board[6][1]==1)||(board[7][0]==1)||(board[6][0]==1));
+            param[28] = (board[7][5] == -2)&&((board[6][5]==1)||(board[7][4]==1)||(board[6][4]==1)||(board[7][6]==1)||(board[6][6]==1));
+            param[29] = (board[7][3] == -2)&&((board[6][3]==1)||(board[7][2]==1)||(board[6][2]==1)||(board[7][4]==1)||(board[6][4]==1));
+            param[30] = (board[7][1] == -2)&&((board[6][1]==1)||(board[7][0]==1)||(board[6][0]==1)||(board[7][2]==1)||(board[6][2]==1));
         }
 
         for(int i=0; i<params; i++)
