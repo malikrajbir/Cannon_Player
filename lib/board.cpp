@@ -703,35 +703,31 @@ public:
         // Soldiers around townhall
         // My soldiers around the enemy townhall thats not guarded
         // Soldiers & Townhalls
-        if(forw == -1) {
-            // My Townhall
-            // My soldiers
-            param[23] = (board[7][7] == 2)&&((board[6][7]==1)||(board[7][6]==1)||(board[6][6]==1));
-            param[24] = (board[7][5] == 2)&&((board[6][5]==1)||(board[7][4]==1)||(board[6][4]==1)||(board[7][6]==1)||(board[6][6]==1));
-            param[25] = (board[7][3] == 2)&&((board[6][3]==1)||(board[7][2]==1)||(board[6][2]==1)||(board[7][4]==1)||(board[6][4]==1));
-            param[26] = (board[7][1] == 2)&&((board[6][1]==1)||(board[7][0]==1)||(board[6][0]==1)||(board[7][2]==1)||(board[6][2]==1));
-            // Enemy Townhall
-            // My soldiers
-            param[27] = (board[7-7][7-7] == -2)&&((board[7-6][7-7]==1)||(board[7-7][7-6]==1)||(board[7-6][7-6]==1));
-            param[28] = (board[7-7][7-5] == -2)&&((board[7-6][7-5]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1)||(board[7-7][7-6]==1)||(board[7-6][7-6]==1));
-            param[29] = (board[7-7][7-3] == -2)&&((board[7-6][7-3]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1));
-            param[30] = (board[7-7][7-1] == -2)&&((board[7-6][7-1]==1)||(board[7-7][7-0]==1)||(board[7-6][7-0]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1));
-        }
-        else {
-            // My Townhall
-            // My soldiers
-            param[23] = (board[7-7][7-7] == 2)&&((board[7-6][7-7]==1)||(board[7-7][7-6]==1)||(board[7-6][7-6]==1));
-            param[24] = (board[7-7][7-5] == 2)&&((board[7-6][7-5]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1)||(board[7-7][7-6]==1)||(board[7-6][7-6]==1));
-            param[25] = (board[7-7][7-3] == 2)&&((board[7-6][7-3]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1)||(board[7-7][7-4]==1)||(board[7-6][7-4]==1));
-            param[26] = (board[7-7][7-1] == 2)&&((board[7-6][7-1]==1)||(board[7-7][7-0]==1)||(board[7-6][7-0]==1)||(board[7-7][7-2]==1)||(board[7-6][7-2]==1));
-            // Enemy Townhall
-            // My soldiers
-            param[27] = (board[7][7] == -2)&&((board[6][7]==1)||(board[7][6]==1)||(board[6][6]==1));
-            param[28] = (board[7][5] == -2)&&((board[6][5]==1)||(board[7][4]==1)||(board[6][4]==1)||(board[7][6]==1)||(board[6][6]==1));
-            param[29] = (board[7][3] == -2)&&((board[6][3]==1)||(board[7][2]==1)||(board[6][2]==1)||(board[7][4]==1)||(board[6][4]==1));
-            param[30] = (board[7][1] == -2)&&((board[6][1]==1)||(board[7][0]==1)||(board[6][0]==1)||(board[7][2]==1)||(board[6][2]==1));
-        }
-
+        // My Townhall
+        // My soldiers
+        param[23] = -forw*((board[7][7]==-forw*2)&&((board[6][7]==-forw)||(board[7][6]==-forw)||(board[6][6]==-forw)));
+        param[24] = -forw*((board[7][5]==-forw*2)&&((board[6][5]==-forw)||(board[7][4]==-forw)||(board[6][4]==-forw)||(board[7][6]==-forw)||(board[6][6]==-forw)));
+        param[25] = -forw*((board[7][3]==-forw*2)&&((board[6][3]==-forw)||(board[7][2]==-forw)||(board[6][2]==-forw)||(board[7][4]==-forw)||(board[6][4]==-forw)));
+        param[26] = -forw*((board[7][1]==-forw*2)&&((board[6][1]==-forw)||(board[7][0]==-forw)||(board[6][0]==-forw)||(board[7][2]==-forw)||(board[6][2]==-forw)));
+        // Enemy Townhall
+        // My soldiers
+        param[27] = -forw*((board[7-7][7-7]==forw*2)&&((board[7-6][7-7]==-forw)||(board[7-7][7-6]==-forw)||(board[7-6][7-6]==-forw)));
+        param[28] = -forw*((board[7-7][7-5]==forw*2)&&((board[7-6][7-5]==-forw)||(board[7-7][7-4]==-forw)||(board[7-6][7-4]==-forw)||(board[7-7][7-6]==-forw)||(board[7-6][7-6]==-forw)));
+        param[29] = -forw*((board[7-7][7-3]==forw*2)&&((board[7-6][7-3]==-forw)||(board[7-7][7-2]==-forw)||(board[7-6][7-2]==-forw)||(board[7-7][7-4]==-forw)||(board[7-6][7-4]==-forw)));
+        param[30] = -forw*((board[7-7][7-1]==forw*2)&&((board[7-6][7-1]==-forw)||(board[7-7][7-0]==-forw)||(board[7-6][7-0]==-forw)||(board[7-7][7-2]==-forw)||(board[7-6][7-2]==-forw)));
+        // My Townhall
+        // My soldiers
+        param[23] += forw*((board[7-7][7-7]==forw*2)&&((board[7-6][7-7]==forw)||(board[7-7][7-6]==forw)||(board[7-6][7-6]==forw)));
+        param[24] += forw*((board[7-7][7-5]==forw*2)&&((board[7-6][7-5]==forw)||(board[7-7][7-4]==forw)||(board[7-6][7-4]==forw)||(board[7-7][7-6]==forw)||(board[7-6][7-6]==forw)));
+        param[25] += forw*((board[7-7][7-3]==forw*2)&&((board[7-6][7-3]==forw)||(board[7-7][7-2]==forw)||(board[7-6][7-2]==forw)||(board[7-7][7-4]==forw)||(board[7-6][7-4]==forw)));
+        param[26] += forw*((board[7-7][7-1]==forw*2)&&((board[7-6][7-1]==forw)||(board[7-7][7-0]==forw)||(board[7-6][7-0]==forw)||(board[7-7][7-2]==forw)||(board[7-6][7-2]==forw)));
+        // Enemy Townhall
+        // My soldiers
+        param[27] += forw*((board[7][7]==-forw*2)&&((board[6][7]==forw)||(board[7][6]==forw)||(board[6][6]==forw)));
+        param[28] += forw*((board[7][5]==-forw*2)&&((board[6][5]==forw)||(board[7][4]==forw)||(board[6][4]==forw)||(board[7][6]==forw)||(board[6][6]==forw)));
+        param[29] += forw*((board[7][3]==-forw*2)&&((board[6][3]==forw)||(board[7][2]==forw)||(board[6][2]==forw)||(board[7][4]==forw)||(board[6][4]==forw)));
+        param[30] += forw*((board[7][1]==-forw*2)&&((board[6][1]==forw)||(board[7][0]==forw)||(board[6][0]==forw)||(board[7][2]==forw)||(board[6][2]==forw)));
+        
         for(int i=0; i<params; i++)
             scr += param[i]*w[i];
             
