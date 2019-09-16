@@ -11,19 +11,16 @@ short forw; // for black, forw = -1 (one step forward decreases the row index) a
 unsigned int _row, _col;
 double inf = __DBL_MAX__;
 
-
 float w[] = {150, 150, 150, 150, 250, 250, 250, 250,
                            100, 150, 100, 150, 75, 100, 150,
-
-                           121.683  ,  -44.8541  ,  -33.3178     ,  -16.0333  ,
-
-                            151.856 ,    -211.737    , 
-
-                             141.683  ,  -289.775,
-
-                             107.901 , 117.901, 127.901, 127.901,
+                            133.782  ,  -56.953  ,  -41.4828     ,-24.1983  ,
+                          158.418 ,   -109.574    , 
+                             133.782  ,  -251.874,
+                             120, 130, 140, 150,
                              2000, 2000, 2000, 2000
                            };
+            
+
 
 // Class for representing the game board
 class Board {
@@ -499,20 +496,20 @@ public:
                     sc -= 0.5;
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col))
                         if(-_mark*board[xo][yo+3*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
-                            sc += 0.6;
+                            sc += 0.5;
                     if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col))
                         if(-_mark*board[xo][yo-3*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
-                            sc += 0.6;
+                            sc += 0.5;
                     if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _row))
                         if(-_mark*board[xo][yo+4*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
-                            sc += 0.6;
+                            sc += 0.5;
                     if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _row))
                         if(-_mark*board[xo][yo-4*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
-                            sc += 0.6;
+                            sc += 0.5;
                     break;
                 }
                 case 'L' : {
-                    sc -= 0.25;
+                    sc -= 0.5;
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
                         if(-_mark*board[xo-3*l_forw][yo+3*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
                             sc += 1;
@@ -528,7 +525,7 @@ public:
                     break;
                 }
                 case 'R' : {
-                    sc -= 0.25;
+                    sc -= 0.5;
                     if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
                         if(-_mark*board[xo+3*l_forw][yo+3*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
                             sc += 1;
@@ -618,37 +615,36 @@ public:
         if(scr != __DBL_MAX__) return scr;
         scr = ssc;
         if(etc == 2) {
-            if(stc == 4) scr += 500000;
-            else scr += 300000;
+            if(stc == 4) scr += 50000;
+            else scr += 30000;
             return scr;
         }
         if(stc == 2) {
-            if(etc == 4) scr -= 500000;
-            else scr -= 300000;
+            if(etc == 4) scr -= 50000;
+            else scr -= 30000;
             return scr;
         }
 
         if(esc == 0) {
             if(stc == 4)
-                scr += ((etc == 3) ? 500000 : 300000);
+                scr += ((etc == 3) ? 50000 : 30000);
             else
-                scr += ((etc == 3) ? 300000 : 100000);
+                scr += ((etc == 3) ? 30000 : 10000);
             return scr;
         }
         if(ssc == 0) {
             if(etc == 4)
-                scr -= ((stc == 3) ? 500000 : 300000);
+                scr -= ((stc == 3) ? 50000 : 30000);
             else
-                scr -= ((stc == 3) ? 300000 : 100000);
+                scr -= ((stc == 3) ? 30000 : 10000);
             return scr;
         }
 
         scr = 0;
-        if(etc == 3) scr += 100000;
-        if(stc == 3) scr -= 100000;    // difference will depend on other weights
+        if(etc == 3) scr += 10000;
+        if(stc == 3) scr -= 10000;    // difference will depend on other weights
         // Setting parameters
         // Ist 11 parameters (Cannons)
-            // V1
         if(forw == -1) {
             // V1
             param[0] = (board[2][0]==1)&&(board[3][0]==1)&&(board[4][0]==1)&&(board[0][0]==-2)&&(board[1][0]==0);
@@ -696,22 +692,20 @@ public:
             param[14] = (board[7-5][7-1]==1)&&(board[7-3][7-3]==1)&&(board[7-4][7-2]==1)&&(board[7-0][7-6]==-2)&&(board[7-2][7-4]==0);
         }
         // Soldier neighbour relations
-        param[15] = 4*unsafe_sold(1, 1);
-        param[16] = 2*unsafe_sold(1, 0);
+        param[15] = unsafe_sold(1, 1);
+        param[16] = unsafe_sold(1, 0);
         param[17] = unsafe_sold(0, 1);
-        param[18] = 2*unsafe_sold(0, 0);
+        param[18] = unsafe_sold(0, 0);
         // Cannon score
         param[19] = cannon_scr(1);
         param[20] = cannon_scr(0);
-        // Soldier score
-        param[21] = 125*pow(ssc, 0.5);
-        param[22] = 150*pow(esc, 0.5);
+        // Enemy score
+        param[21] = ssc*100/pow(ssc+0.001, 0.5);
+        param[22] = esc*100/pow(esc+0.001, 0.5);
 
         // Soldiers around townhall
         // My soldiers around the enemy townhall thats not guarded
         // Soldiers & Townhalls
-        // My Townhall
-        // My soldiers
         if(forw == -1) {
             // My Townhall
             // My soldiers
@@ -874,13 +868,20 @@ Board alpha_beta_search(Board _b, short depth)
         sort_boards(curr, 1);
     }
 
-    float diff = v - _b.score();
-    cerr << diff << "\n";
+    if(v > _b.score()) {
+        for(short i=0; i<params; i++) {
+            if(_b.param[i] == 0) continue;
+            if(_b.param[i] * w[i] > 0) w[i]*=1.02;
+            else w[i]*=0.95;
+        }
+    }
 
-    for(short i=0; i<params; i++) {
-        if(_b.param[i] == 0) continue;
-        if(_b.param[i] * w[i] > 0) w[i] = w[i]+3.5*(diff/_b.score());
-        else w[i] = w[i]-3.5*(diff/_b.score());
+    else if(v < _b.score()) {
+        for(short i=0; i<params; i++) {
+            if(_b.param[i] == 0) continue;
+            if(_b.param[i] * w[i] > 0) w[i]*=0.98;
+            else w[i]*=1.05;
+        }
     }
 
     Board best = curr[0]; 
@@ -945,3 +946,5 @@ int main(int argc, char const *argv[]) {
     myfile.close();
     return 0;
 }
+
+//   150   150   150   150   250   250   250   250   100   150   100   150    75   100   150   100   -75   -60   -35   150  -150   100  -200 
