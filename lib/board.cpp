@@ -11,15 +11,16 @@ short forw; // for black, forw = -1 (one step forward decreases the row index) a
 unsigned int _row, _col;
 double inf = __DBL_MAX__;
 
+
 float w[] = {150, 150, 150, 150, 250, 250, 250, 250,
                            100, 150, 100, 150, 75, 100, 150,
-                            133.782  ,  -56.953  ,  -41.4828     ,-24.1983  ,
-                          158.418 ,   -109.574    , 
-                             133.782  ,  -251.874,
-                             120, 130, 140, 150,
+                            133.782  ,  -156.953  ,  -141.4828     ,-124.1983  ,
+                          200.418 ,   -309.574    , 
+                             133.782  ,  -351.874,
+                             122.253, 152.011, 163.705, 165.281,
                              2000, 2000, 2000, 2000
                            };
-            
+
 
 
 // Class for representing the game board
@@ -693,11 +694,11 @@ public:
         param[17] = unsafe_sold(0, 1);
         param[18] = unsafe_sold(0, 0);
         // Cannon score
-        param[19] = cannon_scr(1);
-        param[20] = cannon_scr(0);
+        param[19] = 1.2*cannon_scr(1)-cannon_scr(0);
+        // param[20]
         // Soldier score
-        param[21] = 100*pow(ssc, 0.5);
-        param[22] = 100*pow(esc, 0.5);
+        param[21] = 110*pow(ssc, 0.5)-100*pow(esc, 0.5);
+        // param[22]
 
         // Soldiers around townhall
         // My soldiers around the enemy townhall thats not guarded
