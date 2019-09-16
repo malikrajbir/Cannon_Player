@@ -463,17 +463,17 @@ public:
             // Searching for vertical cannons (Case : V)
             if(i != 0 && i != _row-1)
                 if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
-                    sc+=4;
+                    sc+=1.5;
             // Searching for horizontal cannons (Case : H)
             if(j != 0 && j != _col-1)
                 if(board[i][j-1] == -_mark && board[i][j+1] == -_mark)
-                    sc+=1;
+                    sc-=0.5;
             // Searching for diagonal cannons (Case : L or R)
             if(!(j == 0 || i == 0 || j == _col-1 || i == _row-1)) {
                 if(board[i+1][j-1] == -_mark && board[i-1][j+1] == -_mark)
-                    sc+=3;
+                    sc+=1;
                 if(board[i-1][j-1] == -_mark && board[i+1][j+1] == -_mark)
-                    sc+=3;
+                    sc+=1;
             }
         }
         return sc;
@@ -482,7 +482,7 @@ public:
     /*
      * Finding the no. of soldiers that are unsafe (for both enemy and us)
      */
-    short unsafe_sold(bool _we) {
+    short unsafe_sold(bool cmp, bool _we) {
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         short l_forw = -_mark*forw; // Local forward
         short i, j;
@@ -503,10 +503,12 @@ public:
             }
         }
         short sm = 0;
+        _we = (cmp)?(_we):(!_we);
+        // _mark = (_we)?(-1):(1); // Mark of the enemy soldier
         for(short ind=0; ind<sold[_we].size(); ind++) {
             i = sold[_we][ind].X; j = sold[_we][ind].Y;
             if(i == -1 && j == -1) continue;
-            if(_p[i][j]) sm++;
+            if(_p[i][j] == 1) sm++;
         }
         _p.clear();
         return sm;
@@ -575,8 +577,77 @@ public:
         scr = 0;
         if(etc == 3) scr += 1000;
         if(stc == 3) scr -= 1000;    // difference will depend on other weights
-        short _can_t = cannon_scr(true), _can_f = cannon_scr(false), _usafe_t = unsafe_sold(true), _usafe_f = unsafe_sold(false);
-        scr += this->count(1)*3.0-this->count(-1)*2.5 + _can_t - _can_f + 2.5*_usafe_t - 2.5*_usafe_f;
+        // Setting parameters
+        int params = 23;
+        float param[params];
+        float w[] = {250, 250, 250, 250, 350, 350, 350, 350,
+                           150, 200, 150, 200, 100, 150, 200,
+                           50, -75, -50, -25,
+                           150, -150, 
+                           100, -200
+                           };
+        // Ist 11 parameters (Cannons)
+        if(forw == -1) {
+            // V1
+            param[0] = (board[2][0]==1)&&(board[3][0]==1)&&(board[4][0]==1);
+            param[1] = (board[2][2]==1)&&(board[3][2]==1)&&(board[4][2]==1);
+            param[2] = (board[2][4]==1)&&(board[3][4]==1)&&(board[4][4]==1);
+            param[3] = (board[2][6]==1)&&(board[3][6]==1)&&(board[4][6]==1);
+            // V2
+            param[4] = (board[5][0]==1)&&(board[3][0]==1)&&(board[4][0]==1);
+            param[5] = (board[5][2]==1)&&(board[3][2]==1)&&(board[4][2]==1);
+            param[6] = (board[5][4]==1)&&(board[3][4]==1)&&(board[4][4]==1);
+            param[7] = (board[5][6]==1)&&(board[3][6]==1)&&(board[4][6]==1);
+            // D T1
+            param[8] = (board[2][2]==1)&&(board[3][3]==1)&&(board[4][4]==1);
+            param[9] = (board[5][5]==1)&&(board[3][3]==1)&&(board[4][4]==1);
+            // D T2
+            param[10] = (board[2][4]==1)&&(board[3][5]==1)&&(board[4][6]==1);
+            param[11] = (board[5][7]==1)&&(board[3][3]==1)&&(board[4][4]==1);
+            // D T3
+            param[12] = (board[2][2]==1)&&(board[3][1]==1)&&(board[4][0]==1);
+            // D T4
+            param[13] = (board[2][4]==1)&&(board[3][3]==1)&&(board[4][2]==1);
+            param[14] = (board[5][1]==1)&&(board[3][3]==1)&&(board[4][2]==1);
+        }
+        else {
+                        // V1
+            param[0] = (board[5][7-0]==1)&&(board[4][7-0]==1)&&(board[3][7-0]==1);
+            param[1] = (board[5][7-2]==1)&&(board[4][7-2]==1)&&(board[3][7-2]==1);
+            param[2] = (board[5][7-4]==1)&&(board[4][7-4]==1)&&(board[3][7-4]==1);
+            param[3] = (board[5][7-6]==1)&&(board[4][7-6]==1)&&(board[3][7-6]==1);
+            // V2
+            param[4] = (board[2][7-0]==1)&&(board[3][7-0]==1)&&(board[4][7-0]==1);
+            param[5] = (board[2][7-2]==1)&&(board[3][7-2]==1)&&(board[4][7-2]==1);
+            param[6] = (board[2][7-4]==1)&&(board[3][7-4]==1)&&(board[4][7-4]==1);
+            param[7] = (board[2][7-6]==1)&&(board[3][7-6]==1)&&(board[4][7-6]==1);
+            // D T1
+            param[8] = (board[2][2]==1)&&(board[3][3]==1)&&(board[4][4]==1);
+            param[9] = (board[5][5]==1)&&(board[3][3]==1)&&(board[4][4]==1);
+            // D T2
+            param[10] = (board[7-2][7-4]==1)&&(board[7-3][7-5]==1)&&(board[7-4][7-6]==1);
+            param[11] = (board[7-5][7-7]==1)&&(board[7-3][7-3]==1)&&(board[7-4][7-4]==1);
+            // D T3
+            param[12] = (board[7-2][7-2]==1)&&(board[7-3][7-1]==1)&&(board[7-4][7-0]==1);
+            // D T4
+            param[13] = (board[7-2][7-4]==1)&&(board[7-3][7-3]==1)&&(board[7-4][7-2]==1);
+            param[14] = (board[7-5][7-1]==1)&&(board[7-3][7-3]==1)&&(board[7-4][7-2]==1);
+        }
+        // Soldier neighbour relations
+        param[15] = unsafe_sold(1, 1);
+        param[16] = unsafe_sold(1, 0);
+        param[17] = unsafe_sold(0, 1);
+        param[18] = unsafe_sold(0, 0);
+        // Cannon score
+        param[19] = cannon_scr(1);
+        param[20] = cannon_scr(0);
+        // Enemy score
+        param[21] = ssc;
+        param[22] = esc;
+
+        for(int i=0; i<params; i++)
+            scr += param[i]*w[i];
+            
         return scr;
     }
 };
@@ -706,14 +777,17 @@ Board alpha_beta_search(Board _b, short depth)
         }
         sort_boards(curr, 1);
     }
-    Board best = curr[0]; best.print_board();
-    cout<<best.score()<<"\n"; 
-    cout<<"Number of nodes generated: "<<um.size()<<"\n";
+    Board best = curr[0]; 
+    // best.print_board();
+    // cout<<best.score()<<"\n"; 
+    // cout<<"Number of nodes generated: "<<um.size()<<"\n";
     um.clear();
     return best;
 }
 
 int main(int argc, char const *argv[]) {
+
+    srand(time(NULL));
 
     /* code */
     int is_black;
