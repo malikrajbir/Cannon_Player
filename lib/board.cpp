@@ -770,8 +770,8 @@ struct board_equal{
     }
 };
 
-unordered_map<Board, vector<Board>, hash_board, board_equal> um;
-unordered_map<Board, short, hash_board, board_equal> ud;
+//unordered_map<Board, vector<Board>, hash_board, board_equal> um;
+//unordered_map<Board, short, hash_board, board_equal> ud;
 
 void sort_boards(vector<Board>& ans, bool _we)
 {
@@ -786,13 +786,8 @@ double min_value(Board, double, double, short, short);
 double max_value(Board _b, double alpha, double beta, short curr_depth, short max_depth) {
     if(_b.count(2) == 2 || _b.count(-2) == 2 || _b.count(1) == 0 || _b.count(-1) == 0)
         return _b.score();
-    
-    if(um.find(_b) == um.end()) {
-        um[_b] = _b.get_all_moves(1);
-        ud[_b] = curr_depth;
-    }
 
-    vector<Board> &curr = um[_b];
+    vector<Board> curr = _b.get_all_moves(1);
 
     if(curr.empty()) {
         if(_b.count(2) == _b.count(-2)) return -10000;
@@ -800,21 +795,18 @@ double max_value(Board _b, double alpha, double beta, short curr_depth, short ma
         return -30000;
     }
 
-    if(curr_depth == max_depth-1 || ud[_b] != curr_depth)
+    if(curr_depth == max_depth-1)
         return curr[0].score();
 
     double v = -inf, tmp; short k = curr.size();
     for(int i=0;i<k;i++) {
         tmp = min_value(curr[i], alpha, beta, curr_depth+1, max_depth);
-        curr[i].set_score(tmp);
         if(tmp > v) v = tmp;
         if(v >= beta) {
-            sort_boards(curr, 1);
             return curr[0].score();
         }
         if(v > alpha) alpha = v;
     }
-    sort_boards(curr, 1);
     return v;
 }
 
@@ -822,12 +814,7 @@ double min_value(Board _b, double alpha, double beta, short curr_depth, short ma
     if(_b.count(2) == 2 || _b.count(-2) == 2 || _b.count(1) == 0 || _b.count(-1) == 0)
         return _b.score();
 
-    if(um.find(_b) == um.end()) {
-        um[_b] = _b.get_all_moves(0);
-        ud[_b] = curr_depth;
-    }
-
-    vector<Board> &curr = um[_b];
+    vector<Board> curr = _b.get_all_moves(0);
 
     if(curr.empty()) {
         if(_b.count(2) == _b.count(-2)) return 10000;
@@ -835,21 +822,18 @@ double min_value(Board _b, double alpha, double beta, short curr_depth, short ma
         return -10000;
     }
     
-    if(curr_depth == max_depth-1 || ud[_b] != curr_depth)
+    if(curr_depth == max_depth-1)
         return curr[0].score();
 
     double v = inf, tmp; short k = curr.size();
     for(int i=0;i<k;i++) {
         tmp = max_value(curr[i], alpha, beta, curr_depth+1, max_depth);
-        curr[i].set_score(tmp);
         if(tmp < v) v = tmp;
         if(v <= alpha) {
-            sort_boards(curr, 0);
             return curr[0].score();
         }
         if(v < beta) beta = v;
     }
-    sort_boards(curr, 0);
     return v;
 }
 
@@ -859,19 +843,16 @@ Board alpha_beta_search(Board _b, short depth)
     vector<Board> neighbours = _b.get_all_moves(1);
     short k = neighbours.size();
     if(k == 0) return _b;
-    
-    um[_b] = neighbours; ud[_b] = 0;
-    vector<Board> &curr = um[_b];
 
-    for(short d=2; d<=depth;d++) {
+    vector<Board> &curr = neighbours;
+
+    for(short d=depth; d<=depth;d++) {
         alpha = v = -inf; beta = inf;
         for(int i=0;i<k;i++) {
             tmp = min_value(curr[i], alpha, beta, 1, d);
-            curr[i].set_score(tmp);
             if(tmp > v) v = tmp;
             if(v > alpha) alpha = v;
         }
-        sort_boards(curr, 1);
     }
 
     float diff = v - _b.score();
@@ -887,7 +868,7 @@ Board alpha_beta_search(Board _b, short depth)
     // best.print_board();
     // cout<<best.score()<<"\n"; 
     // cout<<"Number of nodes generated: "<<um.size()<<"\n";
-    um.clear();
+    // um.clear();
     return best;
 }
 
