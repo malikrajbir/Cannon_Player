@@ -12,14 +12,14 @@ unsigned int _row, _col;
 double inf = __DBL_MAX__;
 
 
-float w[] = {150, 150, 150, 150, 250, 250, 250, 250,
-                           100, 150, 100, 150, 75, 100, 150,
-                            133.782  ,  -156.953  ,  -141.4828     ,-124.1983  ,
-                          200.418 ,   -309.574    , 
-                             133.782  ,  -351.874,
-                             122.253, 152.011, 163.705, 165.281,
-                             2000, 2000, 2000, 2000
-                           };
+float w[] = {100, 100, 100, 100, 100, 100, 100, 100, // VCannons
+            100, 100, 100, 100, 100, 100, 100, // DCannons
+            1000, // Soldier relations
+             100, 100, 100, // Kachra
+            200, // Cannon score diff
+            100, 250 /*Soldier Asli*/, 100, // Kachra
+            50, 50, 50, 50, //  Soldier dynamics
+            50, 50, 50, 50};//  Soldier dynamics
 
 
 
@@ -689,16 +689,16 @@ public:
         param[13] += forw*((board[7-2][7-4]==forw)&&(board[7-3][7-3]==forw)&&(board[7-4][7-2]==forw)&&(board[7-0][7-6]==-forw*2)&&(board[7-1][7-5]==0));
         param[14] += forw*((board[7-5][7-1]==forw)&&(board[7-3][7-3]==forw)&&(board[7-4][7-2]==forw)&&(board[7-0][7-6]==-forw*2)&&(board[7-2][7-4]==0));
         // Soldier neighbour relations
-        param[15] = unsafe_sold(1, 1);
-        param[16] = unsafe_sold(1, 0);
-        param[17] = unsafe_sold(0, 1);
-        param[18] = unsafe_sold(0, 0);
+        param[15] = (4*unsafe_sold(1, 1)-unsafe_sold(1, 0)-2*unsafe_sold(0, 1)-unsafe_sold(0, 0))/192;
+        param[17] = (pow(ssc-esc, 3))/1728;
+        param[18] = param[15]*param[17];
         // Cannon score
-        param[19] = 1.2*cannon_scr(1)-cannon_scr(0);
-        // param[20]
+        param[19] = (1.5*cannon_scr(1)-1.25*cannon_scr(0))/35.0;
+        param[20] = (stc*stc*ssc - etc*etc*esc)/192.0;
+        param[16] = param[19]*param[20];
         // Soldier score
-        param[21] = 110*pow(ssc, 0.5)-100*pow(esc, 0.5);
-        // param[22]
+        param[21] = (125*pow(ssc, 0.5)-150*pow(esc, 0.5))/(pow(12, 0.5)*150.0);
+        param[22] = (pow(stc-2, 4) - pow(etc-2, 4))/16;
 
         // Soldiers around townhall
         // My soldiers around the enemy townhall thats not guarded
@@ -861,20 +861,13 @@ Board alpha_beta_search(Board _b, short depth)
         sort_boards(curr, 1);
     }
 
-    if(v > _b.score()) {
-        for(short i=0; i<params; i++) {
-            if(_b.param[i] == 0) continue;
-            if(_b.param[i] * w[i] > 0) w[i]*=1.02;
-            else w[i]*=0.95;
-        }
-    }
+    float diff = v - _b.score();
+    cerr << diff << "\n";
 
-    else if(v < _b.score()) {
-        for(short i=0; i<params; i++) {
-            if(_b.param[i] == 0) continue;
-            if(_b.param[i] * w[i] > 0) w[i]*=0.98;
-            else w[i]*=1.05;
-        }
+    for(short i=0; i<params; i++) {
+        if(_b.param[i] == 0) continue;
+        if(_b.param[i] * w[i] > 0) w[i] = w[i]+0.1*(diff/_b.score())*(_b.param[i]);
+        else w[i] = w[i]-0.1*(diff/_b.score())*(_b.param[i]);;
     }
 
     Board best = curr[0]; 
