@@ -467,26 +467,79 @@ public:
      * Function for finding the count of cannons present (for both us and enemy)
      */
     double cannon_scr(bool _we) {
+        vector<pair<pii, char>> cannons =  get_all_cannon_positions(_we);
+        double sc = 0;
         short _mark = (_we)?(-1):(1); // Mark of the enemy soldier
-        double sc=0;
-        short i, j;
-        for(short ind=0; ind<sold[_we].size(); ind++) {
-            i = sold[_we][ind].X; j = sold[_we][ind].Y;
-            if(i == -1 && j == -1) continue;
-            // Searching for vertical cannons (Case : V)
-            if(i != 0 && i != _row-1)
-                if(board[i-1][j] == -_mark && board[i+1][j] == -_mark)
-                    sc+=1.5;
-            // Searching for horizontal cannons (Case : H)
-            if(j != 0 && j != _col-1)
-                if(board[i][j-1] == -_mark && board[i][j+1] == -_mark)
-                    sc-=0.5;
-            // Searching for diagonal cannons (Case : L or R)
-            if(!(j == 0 || i == 0 || j == _col-1 || i == _row-1)) {
-                if(board[i+1][j-1] == -_mark && board[i-1][j+1] == -_mark)
-                    sc+=1;
-                if(board[i-1][j-1] == -_mark && board[i+1][j+1] == -_mark)
-                    sc+=1;
+        short l_forw = -_mark*forw; // Local forward
+        short xo, yo;
+        for(auto& _c : cannons) {
+            xo = _c.X.X;
+            yo = _c.X.Y;
+            switch(_c.Y) {
+                case 'V' : {
+                    sc += 1;
+                    if(!(xo+3*l_forw < 0 || xo+3*l_forw >= _row))
+                        if(-_mark*board[xo+3*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
+                            sc += 1;
+                    if(!(xo-3*l_forw < 0 || xo-3*l_forw >= _row))
+                        if(-_mark*board[xo-3*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
+                            sc += 1;
+                    if(!(xo+4*l_forw < 0 || xo+4*l_forw >= _row))
+                        if(-_mark*board[xo+4*l_forw][yo] < 0 && board[xo+2*l_forw][yo] == 0)
+                            sc += 1;
+                    if(!(xo-4*l_forw < 0 || xo-4*l_forw >= _row))
+                        if(-_mark*board[xo-4*l_forw][yo] < 0 && board[xo-2*l_forw][yo] == 0)
+                            sc += 1;
+                    break;
+                }
+                case 'H' : {
+                    sc -= 0.5;
+                    if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col))
+                        if(-_mark*board[xo][yo+3*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
+                            sc += 0.5;
+                    if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col))
+                        if(-_mark*board[xo][yo-3*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
+                            sc += 0.5;
+                    if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _row))
+                        if(-_mark*board[xo][yo+4*l_forw] < 0 && board[xo][yo+2*l_forw] == 0)
+                            sc += 0.5;
+                    if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _row))
+                        if(-_mark*board[xo][yo-4*l_forw] < 0 && board[xo][yo-2*l_forw] == 0)
+                            sc += 0.5;
+                    break;
+                }
+                case 'L' : {
+                    sc -= 0.5;
+                    if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
+                        if(-_mark*board[xo-3*l_forw][yo+3*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
+                            sc += 1;
+                    if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
+                        if(-_mark*board[xo+3*l_forw][yo-3*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
+                            sc += 1;                            
+                    if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
+                        if(-_mark*board[xo-4*l_forw][yo+4*l_forw] < 0  && board[xo-2*l_forw][yo+2*l_forw] == 0)
+                            sc += 1;
+                    if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
+                        if(-_mark*board[xo+4*l_forw][yo-4*l_forw] < 0  && board[xo+2*l_forw][yo-2*l_forw] == 0)
+                            sc += 1;
+                    break;
+                }
+                case 'R' : {
+                    sc -= 0.5;
+                    if(!(yo+3*l_forw < 0 || yo+3*l_forw >= _col || xo+3*l_forw < 0 || xo+3*l_forw >= _row))
+                        if(-_mark*board[xo+3*l_forw][yo+3*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
+                            sc += 1;
+                    if(!(yo-3*l_forw < 0 || yo-3*l_forw >= _col || xo-3*l_forw < 0 || xo-3*l_forw >= _row))
+                        if(-_mark*board[xo-3*l_forw][yo-3*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
+                            sc += 1;
+                    if(!(yo+4*l_forw < 0 || yo+4*l_forw >= _col || xo+4*l_forw < 0 || xo+4*l_forw >= _row))
+                        if(-_mark*board[xo+4*l_forw][yo+4*l_forw] < 0 && board[xo+2*l_forw][yo+2*l_forw] == 0)
+                            sc += 1;
+                    if(!(yo-4*l_forw < 0 || yo-4*l_forw >= _col || xo-4*l_forw < 0 || xo-4*l_forw >= _row))
+                        if(-_mark*board[xo-4*l_forw][yo-4*l_forw] < 0 && board[xo-2*l_forw][yo-2*l_forw] == 0)
+                            sc += 1;
+                    break;
+                }
             }
         }
         return sc;
