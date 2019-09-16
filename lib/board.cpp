@@ -2,6 +2,7 @@
 #define X first
 #define Y second
 #define pb push_back
+#define params 23
 
 using namespace std;
 typedef pair<short, short> pii;
@@ -9,6 +10,14 @@ typedef pair<short, short> pii;
 short forw; // for black, forw = -1 (one step forward decreases the row index) and for white, forw = 1 (one step forward increases the row index)
 unsigned int _row, _col;
 double inf = __DBL_MAX__;
+
+float w[] = {250, 250, 250, 250, 350, 350, 350, 350,
+                           150, 200, 150, 200, 100, 150, 200,
+                           50, -75, -50, -25,
+                           150, -150, 
+                           100, -200
+                           };
+
 
 // Class for representing the game board
 class Board {
@@ -63,6 +72,7 @@ private:
 public:
 
     string prev_step; // Step that lead to this game...
+    float param[params];
 
     /*
      * Constructor
@@ -575,17 +585,9 @@ public:
         }
 
         scr = 0;
-        if(etc == 3) scr += 1000;
-        if(stc == 3) scr -= 1000;    // difference will depend on other weights
+        if(etc == 3) scr += 10000;
+        if(stc == 3) scr -= 10000;    // difference will depend on other weights
         // Setting parameters
-        int params = 23;
-        float param[params];
-        float w[] = {250, 250, 250, 250, 350, 350, 350, 350,
-                           150, 200, 150, 200, 100, 150, 200,
-                           50, -75, -50, -25,
-                           150, -150, 
-                           100, -200
-                           };
         // Ist 11 parameters (Cannons)
         if(forw == -1) {
             // V1
@@ -777,6 +779,23 @@ Board alpha_beta_search(Board _b, short depth)
         }
         sort_boards(curr, 1);
     }
+
+    if(v > _b.score()) {
+        for(short i=0; i<params; i++) {
+            if(_b.param[i] == 0) continue;
+            if(_b.param[i] * w[i] > 0) w[i]*=1.05;
+            else w[i]*=0.95;
+        }
+    }
+
+    else if(v < _b.score()) {
+        for(short i=0; i<params; i++) {
+            if(_b.param[i] == 0) continue;
+            if(_b.param[i] * w[i] > 0) w[i]*=0.95;
+            else w[i]*=1.05;
+        }
+    }
+
     Board best = curr[0]; 
     // best.print_board();
     // cout<<best.score()<<"\n"; 
@@ -809,11 +828,18 @@ int main(int argc, char const *argv[]) {
     bool step = is_black;
     string user_step; char s;
 
+    ofstream myfile;
+    myfile.open ("weights.txt");
+    for(short i=0;i<params;i++) myfile<<w[i]<<" ";
+        myfile<<endl; 
+
     while(1) {
         if(step) {
             tmp = alpha_beta_search(c, 5);
-            if(tmp.pos() == c.pos()) return 0;
+            if(tmp.pos() == c.pos()) break;
             c = tmp;
+            for(short i=0;i<params;i++) myfile<<w[i]<<" ";
+            myfile<<endl; 
             cout << c.prev_step << endl;
         }
         else {
@@ -829,5 +855,6 @@ int main(int argc, char const *argv[]) {
         }
         step = !step;
     }
+    myfile.close();
     return 0;
 }
