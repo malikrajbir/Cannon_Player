@@ -266,10 +266,293 @@ void _soldier_moves(vector<Board>& _states, Board& _b, bool _we) {
 
 
 /*
+ * Getting the positions of all the cannons (middle-indexed)
+ * @param _board (vector<vector<short>>&) : Board positions.
+ * @param _cannons (vector<pss>[4]) : Keeping in check the cannon positions, with indexed vectors. (0->V, 1->H, 2->L, 3->R)
+ * @param _we : Whether we are playing the move or other
+ */
+void _cannon_positions(vector<vector<short>>& _board, vector<pss>& _positions, vector<pss> _cannons[4], bool _we) {
+    
+    // Initialising the vector
+    loop(i, 0, 4) _cannons[i] = vector<pss>();
+
+    // Setting the self soldier (also represents the sign)
+    short _self = (_we)?(1):(-1);
+
+    // Local positional variables
+    short i, j;
+
+    // Finding the cannons using player positions.
+    for(auto& _p : _positions) {
+        
+        // Getting the coordinates
+        i = _p._x, j = _p._y;
+
+        // Searching for vertical cannons (Case : V)
+        if(i != 0 && i != Board::shape(1)-1)
+            if(_board[i-1][j] == _self && _board[i+1][j] == _self)
+                _cannons[0].push_back({i, j});
+        
+        // Searching for horizontal cannons (Case : H)
+        if(j != 0 && j != Board::shape(0)-1)
+            if(_board[i][j-1] == _self && _board[i][j+1] == _self)
+                _cannons[1].push_back({i, j});
+        
+        // Searching for diagonal cannons (Case : L or R)
+        if(!(j == 0 || i == 0 || j == Board::shape(0)-1 || i == Board::shape(1)-1)) {
+            if(_board[i+1][j-1] == _self && _board[i-1][j+1] == _self)
+                _cannons[2].push_back({i, j});
+            if(_board[i-1][j-1] == _self && _board[i+1][j+1] == _self)
+                _cannons[3].push_back({i, j});
+        }
+    }
+}
+
+
+/*
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  * CANNON MOVES/ATTACKS
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  */
 
+
+/*
+ * Getting all the cannon forward and backward movements.
+ * @param _states (vector<Board>&) : State container, referenced.
+ * @param _b (Board&) : Board to work with.
+ * @param _cannons (vector<pss>[4]) : Keeping in check the cannon positions, with indexed vectors. (0->V, 1->H, 2->L, 3->R)
+ * @param _we (bool) : Whether we are playing the move or other.
+ */
+void _cannon_steps(vector<Board>& _states, Board& _b, vector<pss> _cannons[4], bool _we) {
+
+    // Setting the enemy soldier (also represents the sign)
+    short _enemy = (_we)?(-1):(1);
+
+    // Setting the movement
+    short _move = (_we ^ Board::type())?(1):(-1);
+
+    // Local positiional variables
+    short xo, yo, xn, yn;
+
+    // Board dimensions
+    short _row = Board::shape(1), _col = Board::shape(0);
+
+    // Working with Vertical Cannons
+    for(auto& _p : _cannons[0]) {
+        // Setting coordinates
+        xo = _p._x, yo = _p._y;
+        // Setting new coordinates (V) (Forward)
+        xn = xo + 2*_move, yn = yo;
+        if(!(xn < 0 || xn >= _row)) 
+            if(_b.board()[xn][yn] == 0)
+                _states.push_back(move_player(_b, {xo-_move, yo}, {xn, yn}, _we));
+        // Setting new coordinates (V) (Backward)
+        xn = xo - 2*_move, yn = yo;
+        if(!(xn < 0 || xn >= _row)) 
+            if(_b.board()[xn][yn] == 0)
+                _states.push_back(move_player(_b, {xo+_move, yo}, {xn, yn}, _we));
+    }
+    
+    // Working with Horizontal Cannons
+    for(auto& _p : _cannons[1]) {
+        // Setting coordinates
+        xo = _p._x, yo = _p._y;
+        // Setting new coordinates (H) (Forward)
+        xn = xo, yn = yo + 2*_move;
+        if(!(yn < 0 || yn >= _col))
+            if(_b.board()[xn][yn] == 0)
+                _states.push_back(move_player(_b, {xo, yo-_move}, {xn, yn}, _we));
+        // Setting new coordinates (H) (Backward)
+        xn = xo, yn = yo - 2*_move;
+        if(!(yn < 0 || yn >= _col))
+            if(_b.board()[xn][yn] == 0)
+                _states.push_back(move_player(_b, {xo, yo+_move}, {xn, yn}, _we));
+    }
+
+    // Working with Leftward Cannons
+    for(auto& _p : _cannons[2]) {
+        // Setting coordinates
+        xo = _p._x, yo = _p._y;
+        // Setting new coordinates (L)  (Forward)
+        xn = xo + 2*_move, yn = yo - 2*_move;
+        if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
+            if(_b.board()[xn][yn] == 0)
+                _states.push_back(move_player(_b, {xo-_move, yo+_move}, {xn, yn}, _we));
+        // Setting new coordinates (L)  (Backward)
+        xn = xo - 2*_move, yn = yo + 2*_move;
+        if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
+            if(_b.board()[xn][yn] == 0)
+                _states.push_back(move_player(_b, {xo+_move, yo-_move}, {xn, yn}, _we));
+    }
+
+    // Working with Rightward Cannons
+    for(auto& _p : _cannons[3]) {
+        // Setting coordinates
+        xo = _p._x, yo = _p._y;
+        // Setting new coordinates (R)  (Forward)
+        xn = xo + 2*_move, yn = yo + 2*_move;
+        if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
+            if(_b.board()[xn][yn] == 0)
+                _states.push_back(move_player(_b, {xo-_move, yo-_move}, {xn, yn}, _we));
+        // Setting new coordinates (R)  (Backward)
+        xn = xo - 2*_move, yn = yo - 2*_move;
+        if(!(yn < 0 || yn >= _col || xn < 0 || xn >= _row))
+            if(_b.board()[xn][yn] == 0)
+                _states.push_back(move_player(_b, {xo+_move, yo+_move}, {xn, yn}, _we));
+    }
+}
+
+
+/*
+ * Getting all the cannon attacks.
+ * @param _states (vector<Board>&) : State container, referenced.
+ * @param _b (Board&) : Board to work with.
+ * @param _cannons (vector<pss>[4]) : Keeping in check the cannon positions, with indexed vectors. (0->V, 1->H, 2->L, 3->R)
+ * @param _we (bool) : Whether we are playing the move or other.
+ */
+void _cannon_attacks(vector<Board>& _states, Board& _b, vector<pss> _cannons[4], bool _we) {
+
+    // Setting the enemy soldier (also represents the sign)
+    short _self = (_we)?(1):(-1);
+
+    // Setting the movement
+    short _move = (_we ^ Board::type())?(1):(-1);
+
+    // Local positional variables
+    short xo, yo;
+
+    // Board dimensions
+    short _row = Board::shape(1), _col = Board::shape(0);
+
+    // Working with Vertical Cannons
+    for(auto& _p : _cannons[0]) {
+        // Setting coordinates
+        xo = _p._x, yo = _p._y;
+        
+        // Processing all attacks
+        if(!(xo+3*_move < 0 || xo+3*_move >= _row))
+            if(_self*_b.board()[xo+3*_move][yo] < 0 && _b.board()[xo+2*_move][yo] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo+3*_move, yo}, _we));
+        if(!(xo-3*_move < 0 || xo-3*_move >= _row))
+            if(_self*_b.board()[xo-3*_move][yo] < 0 && _b.board()[xo-2*_move][yo] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo-3*_move, yo}, _we));
+        if(!(xo+4*_move < 0 || xo+4*_move >= _row))
+            if(_self*_b.board()[xo+4*_move][yo] < 0 && _b.board()[xo+2*_move][yo] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo+4*_move, yo}, _we));
+        if(!(xo-4*_move < 0 || xo-4*_move >= _row))
+            if(_self*_b.board()[xo-4*_move][yo] < 0 && _b.board()[xo-2*_move][yo] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo-4*_move, yo}, _we));
+    }
+    
+    // Working with Horizontal Cannons
+    for(auto& _p : _cannons[1]) {
+        // Setting coordinates
+        xo = _p._x, yo = _p._y;
+
+        // Processing all attacks
+        if(!(yo+3*_move < 0 || yo+3*_move >= _col))
+            if(_self*_b.board()[xo][yo+3*_move] < 0 && _b.board()[xo][yo+2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo, yo+3*_move}, _we));
+        if(!(yo-3*_move < 0 || yo-3*_move >= _col))
+            if(_self*_b.board()[xo][yo-3*_move] < 0 && _b.board()[xo][yo-2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo, yo-3*_move}, _we));
+        if(!(yo+4*_move < 0 || yo+4*_move >= _row))
+            if(_self*_b.board()[xo][yo+4*_move] < 0 && _b.board()[xo][yo+2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo, yo+4*_move}, _we));
+        if(!(yo-4*_move < 0 || yo-4*_move >= _row))
+            if(_self*_b.board()[xo][yo-4*_move] < 0 && _b.board()[xo][yo-2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo, yo-4*_move}, _we));
+    }
+
+    // Working with Leftward Cannons
+    for(auto& _p : _cannons[2]) {
+        // Setting coordinates
+        xo = _p._x, yo = _p._y;
+
+        // Processing all attacks
+        if(!(yo+3*_move < 0 || yo+3*_move >= _col || xo-3*_move < 0 || xo-3*_move >= _row))
+            if(_self*_b.board()[xo-3*_move][yo+3*_move] < 0  && _b.board()[xo-2*_move][yo+2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo-3*_move, yo+3*_move}, _we));
+        if(!(yo-3*_move < 0 || yo-3*_move >= _col || xo+3*_move < 0 || xo+3*_move >= _row))
+            if(_self*_b.board()[xo+3*_move][yo-3*_move] < 0  && _b.board()[xo+2*_move][yo-2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo+3*_move, yo-3*_move}, _we));
+        if(!(yo+4*_move < 0 || yo+4*_move >= _col || xo-4*_move < 0 || xo-4*_move >= _row))
+            if(_self*_b.board()[xo-4*_move][yo+4*_move] < 0  && _b.board()[xo-2*_move][yo+2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo-_move*4, yo+4*_move}, _we));
+        if(!(yo-4*_move < 0 || yo-4*_move >= _col || xo+4*_move < 0 || xo+4*_move >= _row))
+            if(_self*_b.board()[xo+4*_move][yo-4*_move] < 0  && _b.board()[xo+2*_move][yo-2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo+4*_move, yo-4*_move}, _we));
+    }
+
+    // Working with Rightward Cannons
+    for(auto& _p : _cannons[3]) {
+        // Setting coordinates
+        xo = _p._x, yo = _p._y;
+
+        // Processing all attacks
+        if(!(yo+3*_move < 0 || yo+3*_move >= _col || xo+3*_move < 0 || xo+3*_move >= _row))
+            if(_self*_b.board()[xo+3*_move][yo+3*_move] < 0 && _b.board()[xo+2*_move][yo+2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo+3*_move, yo+3*_move}, _we));
+        if(!(yo-3*_move < 0 || yo-3*_move >= _col || xo-3*_move < 0 || xo-3*_move >= _row))
+            if(_self*_b.board()[xo-3*_move][yo-3*_move] < 0 && _b.board()[xo-2*_move][yo-2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo-3*_move, yo-3*_move}, _we));
+        if(!(yo+4*_move < 0 || yo+4*_move >= _col || xo+4*_move < 0 || xo+4*_move >= _row))
+            if(_self*_b.board()[xo+4*_move][yo+4*_move] < 0 && _b.board()[xo+2*_move][yo+2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo+4*_move, yo+4*_move}, _we));
+        if(!(yo-4*_move < 0 || yo-4*_move >= _col || xo-4*_move < 0 || xo-4*_move >= _row))
+            if(_self*_b.board()[xo-4*_move][yo-4*_move] < 0 && _b.board()[xo-2*_move][yo-2*_move] == 0)
+                _states.push_back(remove_player(_b, {xo, yo}, {xo-4*_move, yo-4*_move}, _we));
+    }
+}
+
+
+/*
+ * Getting all the cannon moves.
+ * @param _states (vector<Board>&) : State container, referenced.
+ * @param _b (Board&) : The board to work with. (Present Board)
+ * @param _we : Whether we are playing the move or other.
+ */
+void _cannon_moves(vector<Board>& _states, Board& _b, bool _we) {
+    
+    // Creating the cannon-position vector-array
+    vector<pss> _cannons[4];
+
+    // Getting the cannon positions
+    _cannon_positions(_b.board(), _b.positions(_we), _cannons, _we);
+
+    // Now getting cannon moves
+    _cannon_steps(_states, _b, _cannons, _we);
+
+    // Now getting cannon attacks
+    _cannon_attacks(_states, _b, _cannons, _we);
+
+}
+
+
+/*
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * ALL POSSIBLE NEXT STATES
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ */
+
+/*
+ * Get all the possible moves to the next state.
+ * @param _b (Board&) : The board to work with. (Present Board)
+ * @param _we : Whether we are playing the move or other.
+ */
+vector<Board> next_state(Board& _b, bool _we) {
+
+    // Container
+    vector<Board> _states;
+
+    // Getting soldier moves
+    _soldier_moves(_states, _b, _we);
+
+    // Getting cannon moves
+    _cannon_moves(_states, _b, _we);
+
+    // Return
+    return _states;
+}
 
 #endif

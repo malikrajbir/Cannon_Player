@@ -12,9 +12,7 @@ int main(int argc, char const *argv[])
     // Creating a board
     Board _b = Board(false);
     // Containor vector
-    vector<Board> _s; 
-    _soldier_moves(_s, _b, true);
-
+    vector<Board> _s = next_state(_b, false); 
     // Printing all moves
     for(auto& _d: _s) {
         _d._print();

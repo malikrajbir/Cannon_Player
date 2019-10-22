@@ -258,7 +258,7 @@ public:
      * @param _us : Whether our or other players informtion is required.
      * @return (vector<pair<short, short>>&) 
      */
-    vector<pss>& positions(bool _us = true) {
+    vector<pss>& positions(bool _us) {
         return _positions[_us];
     }
 
