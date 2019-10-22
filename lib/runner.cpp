@@ -8,14 +8,18 @@ using namespace std;
 int main(int argc, char const *argv[])
 {
     // Initialsing Board Static
-    Board::_init(10, 10);
+    Board::_init(12, 12);
     // Creating a board
     Board _b = Board(false);
-    _b._print();
-    // Moving and checking...
-    _b = move_player(_b, {2, 1}, {3, 1}, true);
-    // Printing the new board
-    _b._print();
+    // Containor vector
+    vector<Board> _s; 
+    _soldier_moves(_s, _b, true);
+
+    // Printing all moves
+    for(auto& _d: _s) {
+        _d._print();
+    }
+
     // Exit
     exit(0);
 }

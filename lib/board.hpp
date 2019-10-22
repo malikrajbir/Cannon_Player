@@ -152,6 +152,32 @@ public:
     }
 
 
+    /*
+     * Getting the board dimensions.
+     * @param __row (bool) : Whether _row needed or _col
+     * @return (short) (True -> Row) (False -> Column)
+     * 
+     * NOTE: This function must be called after setting type (creating the first board).
+     */
+    static short shape(bool __row) {
+        if(__row)
+            return _row;
+        else
+            return _col;
+    }
+
+
+    /*
+     * Getting the main player type. (Black or White?)
+     * @return (Black -> True) (White -> False)
+     * 
+     * NOTE: This function must be called after setting type (creating the first board).
+     */
+    static bool type() {
+        return _black;
+    }
+
+
 // ------------------------------------------------------------
 // SETTERS/RESETTING
 // ------------------------------------------------------------
