@@ -48,7 +48,10 @@ private:
     unsigned char ssc, esc, stc, etc;
 
     // Score of the board
-    float _score;
+    double _score;
+
+    // FLAG: Keeping the check on score.
+    bool score_set;
 
     // String for stacking the previous move
     string _step;
@@ -123,7 +126,8 @@ public:
         // Placing the pieces
         __place();
         // Setting the score to be -INF
-        _score = __DBL_MIN__;
+        _score = -__DBL_MAX__;
+        score_set = false;
     }
 
 
@@ -188,7 +192,10 @@ public:
      * @param _scr : Score to be set.
      */
     void set_score(float _scr) {
+        // Set score.
         _score = _scr;
+        // Set flag.
+        score_set = true;
     }
 
     
@@ -196,7 +203,10 @@ public:
      * Reset the score to -INF.
      */
     void reset_score() {
-        _score = __DBL_MIN__;
+        // Reset Score
+        _score = -__DBL_MAX__;
+        // Unset flag
+        score_set = false;
     }
 
 
@@ -263,12 +273,12 @@ public:
     }
 
 
-    /*
-     * Getting the score of the board.
-     */
-    float score() {
-        return _score;
-    }
+    // /*
+    //  * Getting the score of the board.
+    //  */
+    // float score() {
+    //     return _score;
+    // }
 
     /*
      * Getting the step that created the move.
@@ -276,6 +286,12 @@ public:
     string step() {
         return _step;
     }
+
+    /*
+     * Getting the score of the board.
+     * Defined in "score.hpp".
+     */
+    double score();
 
 
 // ------------------------------------------------------------

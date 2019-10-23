@@ -3,7 +3,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-
+#include <random>
 
 #include "board.hpp"
 
@@ -17,6 +17,9 @@ using namespace std;
 #define pss pair<short, short>
 #define loop(_var, _start, _end) for(int _var=_start; _var<_end; _var++)
 #define loopx(_var, _start, _end, _step) for(int _var=_start; _var<_end; _var+=_step)
+
+// Random engine for randomized shuffles
+auto __rand = default_random_engine {};
 
 
 /*
@@ -531,7 +534,7 @@ void _cannon_moves(vector<Board>& _states, Board& _b, bool _we) {
 
 /*
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
- * ALL POSSIBLE NEXT STATES
+ * NEXT STATES
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  */
 
@@ -551,8 +554,45 @@ vector<Board> next_state(Board& _b, bool _we) {
     // Getting cannon moves
     _cannon_moves(_states, _b, _we);
 
+    // Shuffeling the vector first (for randomisation b/w states with same score)
+    shuffle(_states.begin(), _states.end(), __rand);
+
+    // Sorting the vector according to scores, as per the requirement
+    if(_we)
+        sort(_states.begin(), _states.end(), [](Board& _1, Board& _2) { return _1.score() > _2.score(); });
+    else
+        sort(_states.begin(), _states.end(), [](Board& _1, Board& _2) { return _1.score() < _2.score(); });
+
     // Return
     return _states;
+}
+
+
+/*
+ * Given a move-string, return the next state after processing it.
+ * @param _b (Board) : The board to be worked with. (present board)
+ * @param _stp (string) : The move-string, leading to the next state.
+ */
+Board next_state(Board& _b, string _stp) {
+
+    // Assertion that the length of the string must be 11
+    assert(_stp.length() == 11);
+
+    // If the move involves player movement
+    if(_stp[6] == 'M') {
+        return move_player(_b, {(int)(_stp[4]-'0'),(int)(_stp[2]-'0')}, {(int)(_stp[10]-'0'),(int)(_stp[8]-'0')}, false);
+    }
+
+    // Otherwise if the move involves cannon shot
+    else if(_stp[6] == 'B') {
+        return remove_player(_b, {(int)(_stp[4]-'0'),(int)(_stp[2]-'0')}, {(int)(_stp[10]-'0'),(int)(_stp[8]-'0')}, false);
+    }
+
+    // Invalid move, raise exception
+    else {
+        cerr << flush << _stp.length() << " " << _stp << " " << "Error in [next_state]\n";
+        throw new runtime_error("Error");
+    }
 }
 
 #endif
