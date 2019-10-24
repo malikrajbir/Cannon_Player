@@ -63,7 +63,7 @@ double __min(Board& _b, short _depth, pdd _ab) {
         // Weaker maximum, update
         if(_max < _v) _v = _max;
         // Maximum less than possible, return (what?)
-        if(_v <= _ab._a) return moves[0].score();
+        if(_v <= _ab._a) break;
         // Maximum lower than upper bound, update
         if(_v < _ab._b) _ab._b = _v;
     }
@@ -110,7 +110,7 @@ double __max(Board& _b, short _depth, pdd _ab) {
         // Better minimum, update
         if(_min > _v) _v = _min;
         // Minimum more than possible, return (what?)
-        if(_v >= _ab._b) return moves[0].score();
+        if(_v >= _ab._b) break;
         // Minimum more than lower bound, update
         if(_v > _ab._a) _ab._a = _v;
     }
@@ -144,9 +144,8 @@ void minimax(Board& _b, short _depth) {
     // Running MAX on present board
     double _v = -INF, _min;
     loop(i, 0, moves.size()) {
-        _min = __min(moves[i], _depth, _ab);
         // Getting the minimum-value in the next state
-        _min = __min(moves[i], _depth-1, _ab);
+        _min = __min(moves[i], _depth, _ab);
         // Better minimum, update
         if(_min > _v) { 
             _b = moves[i];

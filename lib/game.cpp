@@ -38,6 +38,9 @@ Board start() {
  * @param _game (Board&) : The main playing board.
  */
 void play(Board& _game) {
+    // Reading the time limit
+    double _TL;
+    cin >> _TL;
     // Local variable (containers)
     string input; time_t _t = time(NULL); char _c;
     // Setting the turn-step
@@ -46,9 +49,9 @@ void play(Board& _game) {
     while(true) {
         // Our turn
         if(step) {
-            // Do something...
+            // Call Mini-Max
             minimax(_game, 5);
-            _game._print();
+            // Print the game step
             cout << _game.step() << "\n";
         }
         // Other player's turn
