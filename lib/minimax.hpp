@@ -142,7 +142,7 @@ void minimax(Board& _b, short _depth) {
     double _v = -INF, _min;
     loop(i, 0, moves.size()) {
         // Getting the minimum-value in the next state
-        _min = __min(moves[i], _depth, _ab);
+        _min = __min(moves[i], _depth-1, _ab);
         // Better minimum, update
         if(_min > _v) {
             _b = moves[i];
