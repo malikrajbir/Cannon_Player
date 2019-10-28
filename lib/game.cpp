@@ -28,6 +28,8 @@ Board start() {
     // Initialising the board class
     Board::_init(_r, _c);
 
+    min_townhalls = Board::shape(0) / 2 - 2;
+
     // Return the board
     return Board(_blk);
 }

@@ -25,6 +25,7 @@ using namespace std;
 double __min(Board& _b, short _depth, pdd _ab);
 double __max(Board& _b, short _depth, pdd _ab);
 
+short min_townhalls;
 
 /*
  * MIN STEP
@@ -37,7 +38,7 @@ double __max(Board& _b, short _depth, pdd _ab);
 double __min(Board& _b, short _depth, pdd _ab) {
 
     // Base case scoring
-    if(_b.count(2) == 2 || _b.count(-2) == 2 || _b.count(1) == 0 || _b.count(-1) == 0)
+    if(_b.count(2) == min_townhalls || _b.count(-2) == min_townhalls || _b.count(1) == 0 || _b.count(-1) == 0)
         return _b.score();
 
     // Getting all possible moves
@@ -84,7 +85,7 @@ double __min(Board& _b, short _depth, pdd _ab) {
 double __max(Board& _b, short _depth, pdd _ab) {
 
     // Base case scoring
-    if(_b.count(2) == 2 || _b.count(-2) == 2 || _b.count(1) == 0 || _b.count(-1) == 0)
+    if(_b.count(2) == min_townhalls || _b.count(-2) == min_townhalls || _b.count(1) == 0 || _b.count(-1) == 0)
         return _b.score();
 
     // Getting all possible moves
@@ -115,10 +116,6 @@ double __max(Board& _b, short _depth, pdd _ab) {
         if(_v > _ab._a) _ab._a = _v;
     }
 
-    // Clearing space
-    moves.clear();
-    moves.resize(0);
-
     // Returning the max-value
     return _v;
 }
@@ -139,23 +136,21 @@ void minimax(Board& _b, short _depth) {
     // Getting next_states
     vector<Board> moves = next_state(_b, 1);
     // Base-case
-    if(moves.size() == 0) return;
+    if(moves.empty()) return;
 
     // Running MAX on present board
     double _v = -INF, _min;
     loop(i, 0, moves.size()) {
-        _min = __min(moves[i], _depth, _ab);
         // Getting the minimum-value in the next state
         _min = __min(moves[i], _depth-1, _ab);
         // Better minimum, update
-        if(_min > _v) { 
+        if(_min > _v) {
             _b = moves[i];
             _v = _min;
         }
         // Minimum more than lower bound, update
         if(_v > _ab._a) _ab._a = _v;
     }
-    
     // Run complete. Return.
 }
 

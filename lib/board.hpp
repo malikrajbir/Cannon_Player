@@ -70,7 +70,6 @@ private:
         ssc = esc = stc = etc = 0;
         // WHITE
         // Setting white town-halls
-        ssc = esc = stc = etc = 0;
         loopx(i, 0, _col, 2) {
             _board[0][i] = _set*2;
             etc++;
@@ -137,10 +136,13 @@ public:
      */
     ~Board() {
         // Clearing the vector
-        _board.resize(0);
+        // _board.resize(0);
+        _board.clear();
         // Clearing positions
-        _positions[0].resize(0);
-        _positions[1].resize(0);
+        // _positions[0].resize(0);
+        // _positions[1].resize(0);
+        _positions[0].clear();
+        _positions[1].clear();
     }
 
 
