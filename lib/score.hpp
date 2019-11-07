@@ -46,7 +46,7 @@ void _soldier_interactions(Board* _b, short* _features) {
     short ss = 0, se = 0, ee = 0, sst = 0, set = 0, est = 0, eet = 0;
     
     // Setting moves
-    short _move = (true ^ Board::type())?(1):(-1);
+    short _move = (Board::type())?(-1):(1);
 
     // Starting with self soldiers
     for(auto& _p : _b->positions(1)) {
@@ -101,28 +101,17 @@ void _soldier_interactions(Board* _b, short* _features) {
             }
         }
         if(_p.first-_move < Board::shape(1) && _p.first-_move >= 0) {
-            // Checking on the front
-            switch(_b->board()[_p.first-_move][_p.second]) {
-                case 2: sst++; break;
-                case -2: set++; break;
-                default: break;
-            }
-            // Checking on the front-left
-            if(_p.second+1 < Board::shape(0)) {
-                switch(_b->board()[_p.first-_move][_p.second+1]) {
-                    case 2: sst++; break;
-                    case -2: set++; break;
-                    default: break;
-                }
-            }
-            // Checking on the front-right
-            if(_p.second-1 >= 0) {
-                switch(_b->board()[_p.first-_move][_p.second-1]) {
-                    case 2: sst++; break;
-                    case -2: set++; break;
-                    default: break;
-                }
-            }
+            // Checking on the back
+            if(_b->board()[_p.first-_move][_p.second] == 2)
+                sst++;
+            // Checking on the back-right
+            if(_p.second+1 < Board::shape(0))
+                if(_b->board()[_p.first-_move][_p.second+1] == 2)
+                    sst++;
+            // Checking on the back-right
+            if(_p.second-1 >= 0)
+                if(_b->board()[_p.first-_move][_p.second-1] == 2)
+                    sst++;
         }
     }
     // Starting with enemy soldiers
@@ -148,28 +137,17 @@ void _soldier_interactions(Board* _b, short* _features) {
             }
         }
         if(_p.first+_move < Board::shape(1) && _p.first+_move >= 0) {
-            // Checking on the front
-            switch(_b->board()[_p.first+_move][_p.second]) {
-                case 2: est++; break;
-                case -2: eet++; break;
-                default: break;
-            }
-            // Checking on the front-left
-            if(_p.second+1 < Board::shape(0)) {
-                switch(_b->board()[_p.first+_move][_p.second+1]) {
-                    case 2: est++; break;
-                    case -2: eet++; break;
-                    default: break;
-                }
-            }
-            // Checking on the front-right
-            if(_p.second-1 >= 0) {
-                switch(_b->board()[_p.first+_move][_p.second-1]) {
-                    case 2: est++; break;
-                    case -2: eet++; break;
-                    default: break;
-                }
-            }
+            // Checking on the back
+            if(_b->board()[_p.first+_move][_p.second] == -2)
+                eet++;
+            // Checking on the back-right
+            if(_p.second+1 < Board::shape(0))
+                if(_b->board()[_p.first+_move][_p.second+1] == -2)
+                    eet++;
+            // Checking on the back-left
+            if(_p.second-1 >= 0)
+                if(_b->board()[_p.first+_move][_p.second-1] == -2)
+                    eet++;
         }
         if(_p.first-_move < Board::shape(1) && _p.first-_move >= 0) {
             // Checking on the front
@@ -259,25 +237,25 @@ void _cannon_interactions(Board* _b, short* _features) {
         if(!(xo+3 < 0 || xo+3 >= _row)){
             if(_b->board()[xo+3][yo] == -1 && _b->board()[xo+2][yo] == 0)
                 ecs++;
-            if(_b->board()[xo+3][yo] == -2 && _b->board()[xo+2][yo] == 0)
+            else if(_b->board()[xo+3][yo] == -2 && _b->board()[xo+2][yo] == 0)
                 etcs++;
         }
         if(!(xo-3 < 0 || xo-3 >= _row)){
             if(_b->board()[xo-3][yo] == -1 && _b->board()[xo-2][yo] == 0)
                 ecs++;
-            if(_b->board()[xo-3][yo] == -2 && _b->board()[xo-2][yo] == 0)
+            else if(_b->board()[xo-3][yo] == -2 && _b->board()[xo-2][yo] == 0)
                 etcs++;
         }
         if(!(xo+4 < 0 || xo+4 >= _row)){
             if(_b->board()[xo+4][yo] == -1 && _b->board()[xo+2][yo] == 0)
                 ecs++;
-            if(_b->board()[xo+4][yo] == -2 && _b->board()[xo+2][yo] == 0)
+            else if(_b->board()[xo+4][yo] == -2 && _b->board()[xo+2][yo] == 0)
                 etcs++;
         }
         if(!(xo-4 < 0 || xo-4 >= _row)){
             if(_b->board()[xo-4][yo] == -1 && _b->board()[xo-2][yo] == 0)
                 ecs++;
-            if(_b->board()[xo-4][yo] == -2 && _b->board()[xo-2][yo] == 0)
+            else if(_b->board()[xo-4][yo] == -2 && _b->board()[xo-2][yo] == 0)
                 etcs++;
         }
     }
@@ -291,25 +269,25 @@ void _cannon_interactions(Board* _b, short* _features) {
         if(!(yo+3 < 0 || yo+3 >= _col)){
             if(_b->board()[xo][yo+3] == -1 && _b->board()[xo][yo+2] == 0)
                 ecs++;
-            if(_b->board()[xo][yo+3] == -2 && _b->board()[xo][yo+2] == 0)
+            else if(_b->board()[xo][yo+3] == -2 && _b->board()[xo][yo+2] == 0)
                 etcs++;
         }
         if(!(yo-3 < 0 || yo-3 >= _col)){
             if(_b->board()[xo][yo-3] == -1 && _b->board()[xo][yo-2] == 0)
                 ecs++;
-            if(_b->board()[xo][yo-3] == -2 && _b->board()[xo][yo-2] == 0)
+            else if(_b->board()[xo][yo-3] == -2 && _b->board()[xo][yo-2] == 0)
                 etcs++;
         }
         if(!(yo+4 < 0 || yo+4 >= _col)){
             if(_b->board()[xo][yo+4] == -1 && _b->board()[xo][yo+2] == 0)
                 ecs++;
-            if(_b->board()[xo][yo+4] == -2 && _b->board()[xo][yo+2] == 0)
+            else if(_b->board()[xo][yo+4] == -2 && _b->board()[xo][yo+2] == 0)
                 etcs++;
         }
         if(!(yo-4 < 0 || yo-4 >= _col)){
             if(_b->board()[xo][yo-4] == -1 && _b->board()[xo][yo-2] == 0)
                 ecs++;
-            if(_b->board()[xo][yo-4] == -2 && _b->board()[xo][yo-2] == 0)
+            else if(_b->board()[xo][yo-4] == -2 && _b->board()[xo][yo-2] == 0)
                 etcs++;
         }
     }
@@ -323,25 +301,25 @@ void _cannon_interactions(Board* _b, short* _features) {
         if(!(yo+3 < 0 || yo+3 >= _col || xo-3 < 0 || xo-3 >= _row)){
             if(_b->board()[xo-3][yo+3] == -1  && _b->board()[xo-2][yo+2] == 0)
                 ecs++;
-            if(_b->board()[xo-3][yo+3] == -2  && _b->board()[xo-2][yo+2] == 0)
+            else if(_b->board()[xo-3][yo+3] == -2  && _b->board()[xo-2][yo+2] == 0)
                 etcs++;
         }
         if(!(yo-3 < 0 || yo-3 >= _col || xo+3 < 0 || xo+3 >= _row)){
             if(_b->board()[xo+3][yo-3] == -1  && _b->board()[xo+2][yo-2] == 0)
                 ecs++;
-            if(_b->board()[xo+3][yo-3] == -2  && _b->board()[xo+2][yo-2] == 0)
+            else if(_b->board()[xo+3][yo-3] == -2  && _b->board()[xo+2][yo-2] == 0)
                 etcs++;
         }
         if(!(yo+4 < 0 || yo+4 >= _col || xo-4 < 0 || xo-4 >= _row)){
             if(_b->board()[xo-4][yo+4] == -1  && _b->board()[xo-2][yo+2] == 0)
                 ecs++;
-            if(_b->board()[xo-4][yo+4] == -2  && _b->board()[xo-2][yo+2] == 0)
+            else if(_b->board()[xo-4][yo+4] == -2  && _b->board()[xo-2][yo+2] == 0)
                 etcs++;
         }
         if(!(yo-4 < 0 || yo-4 >= _col || xo+4 < 0 || xo+4 >= _row)){
             if(_b->board()[xo+4][yo-4] == -1  && _b->board()[xo+2][yo-2] == 0)
                 ecs++;
-            if(_b->board()[xo+4][yo-4] == -2  && _b->board()[xo+2][yo-2] == 0)
+            else if(_b->board()[xo+4][yo-4] == -2  && _b->board()[xo+2][yo-2] == 0)
                 etcs++;
         }
     }
@@ -355,25 +333,25 @@ void _cannon_interactions(Board* _b, short* _features) {
         if(!(yo+3 < 0 || yo+3 >= _col || xo+3 < 0 || xo+3 >= _row)){
             if(_b->board()[xo+3][yo+3] == -1 && _b->board()[xo+2][yo+2] == 0)
                 ecs++;
-            if(_b->board()[xo+3][yo+3] == -2 && _b->board()[xo+2][yo+2] == 0)
+            else if(_b->board()[xo+3][yo+3] == -2 && _b->board()[xo+2][yo+2] == 0)
                 etcs++;
         }
         if(!(yo-3 < 0 || yo-3 >= _col || xo-3 < 0 || xo-3 >= _row)){
             if(_b->board()[xo-3][yo-3] == -1 && _b->board()[xo-2][yo-2] == 0)
                 ecs++;
-            if(_b->board()[xo-3][yo-3] == -2 && _b->board()[xo-2][yo-2] == 0)
+            else if(_b->board()[xo-3][yo-3] == -2 && _b->board()[xo-2][yo-2] == 0)
                 etcs++;
         }
         if(!(yo+4 < 0 || yo+4 >= _col || xo+4 < 0 || xo+4 >= _row)){
             if(_b->board()[xo+4][yo+4] == -1 && _b->board()[xo+2][yo+2] == 0)
                 ecs++;
-            if(_b->board()[xo+4][yo+4] == -2 && _b->board()[xo+2][yo+2] == 0)
+            else if(_b->board()[xo+4][yo+4] == -2 && _b->board()[xo+2][yo+2] == 0)
                 etcs++;
         }
         if(!(yo-4 < 0 || yo-4 >= _col || xo-4 < 0 || xo-4 >= _row)){
             if(_b->board()[xo-4][yo-4] == -1 && _b->board()[xo-2][yo-2] == 0)
                 ecs++;
-            if(_b->board()[xo-4][yo-4] == -2 && _b->board()[xo-2][yo-2] == 0)
+            else if(_b->board()[xo-4][yo-4] == -2 && _b->board()[xo-2][yo-2] == 0)
                 etcs++;
         }
     }
