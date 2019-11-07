@@ -136,11 +136,8 @@ public:
      */
     ~Board() {
         // Clearing the vector
-        // _board.resize(0);
         _board.clear();
         // Clearing positions
-        // _positions[0].resize(0);
-        // _positions[1].resize(0);
         _positions[0].clear();
         _positions[1].clear();
     }

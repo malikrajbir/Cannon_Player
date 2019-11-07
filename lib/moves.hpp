@@ -274,6 +274,7 @@ void _soldier_moves(vector<Board>& _states, Board& _b, bool _we) {
 /*
  * Getting the positions of all the cannons (middle-indexed)
  * @param _board (vector<vector<short>>&) : Board positions.
+ * @param _positions (vector<pss>&) : Positions of all the players.
  * @param _cannons (vector<pss>[4]) : Keeping in check the cannon positions, with indexed vectors. (0->V, 1->H, 2->L, 3->R)
  * @param _we : Whether we are playing the move or other
  */

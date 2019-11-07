@@ -52,7 +52,7 @@ void play(Board& _game) {
         // Our turn
         if(step) {
             // Call Mini-Max
-            minimax(_game, 5);
+            minimax(_game, 2);
             // Print the game step
             cout << _game.step() << "\n";
         }
