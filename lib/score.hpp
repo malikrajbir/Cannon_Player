@@ -46,10 +46,10 @@ void _soldier_interactions(Board* _b, short* _features) {
     short ss = 0, se = 0, ee = 0, sst = 0, set = 0, est = 0, eet = 0;
     
     // Setting moves
-    short _move = 1;
+    short _move = (true ^ Board::type())?(1):(-1);
 
     // Starting with self soldiers
-    for(auto _p : _b->positions(1)) {
+    for(auto& _p : _b->positions(1)) {
         // Checking on the right
         if(_p.second+1 < Board::shape(0)) {
             switch(_b->board()[_p.first][_p.second+1]) {
@@ -103,8 +103,6 @@ void _soldier_interactions(Board* _b, short* _features) {
         if(_p.first-_move < Board::shape(1) && _p.first-_move >= 0) {
             // Checking on the front
             switch(_b->board()[_p.first-_move][_p.second]) {
-                case 1: ss++; break;
-                case -1: se++; break;
                 case 2: sst++; break;
                 case -2: set++; break;
                 default: break;
@@ -112,8 +110,6 @@ void _soldier_interactions(Board* _b, short* _features) {
             // Checking on the front-left
             if(_p.second+1 < Board::shape(0)) {
                 switch(_b->board()[_p.first-_move][_p.second+1]) {
-                    case 1: ss++; break;
-                    case -1: se++; break;
                     case 2: sst++; break;
                     case -2: set++; break;
                     default: break;
@@ -122,8 +118,6 @@ void _soldier_interactions(Board* _b, short* _features) {
             // Checking on the front-right
             if(_p.second-1 >= 0) {
                 switch(_b->board()[_p.first-_move][_p.second-1]) {
-                    case 1: ss++; break;
-                    case -1: se++; break;
                     case 2: sst++; break;
                     case -2: set++; break;
                     default: break;
@@ -132,7 +126,7 @@ void _soldier_interactions(Board* _b, short* _features) {
         }
     }
     // Starting with enemy soldiers
-    for(auto _p : _b->positions(0)) {
+    for(auto& _p : _b->positions(0)) {
         // Checking on the right
         if(_p.second+1 < Board::shape(0)) {
             switch(_b->board()[_p.first][_p.second+1]) {
@@ -156,8 +150,6 @@ void _soldier_interactions(Board* _b, short* _features) {
         if(_p.first+_move < Board::shape(1) && _p.first+_move >= 0) {
             // Checking on the front
             switch(_b->board()[_p.first+_move][_p.second]) {
-                case 1: se++; break;
-                case -1: ee++; break;
                 case 2: est++; break;
                 case -2: eet++; break;
                 default: break;
@@ -165,8 +157,6 @@ void _soldier_interactions(Board* _b, short* _features) {
             // Checking on the front-left
             if(_p.second+1 < Board::shape(0)) {
                 switch(_b->board()[_p.first+_move][_p.second+1]) {
-                    case 1: se++; break;
-                    case -1: ee++; break;
                     case 2: est++; break;
                     case -2: eet++; break;
                     default: break;
@@ -175,8 +165,6 @@ void _soldier_interactions(Board* _b, short* _features) {
             // Checking on the front-right
             if(_p.second-1 >= 0) {
                 switch(_b->board()[_p.first+_move][_p.second-1]) {
-                    case 1: se++; break;
-                    case -1: ee++; break;
                     case 2: est++; break;
                     case -2: eet++; break;
                     default: break;

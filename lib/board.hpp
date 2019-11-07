@@ -272,13 +272,6 @@ public:
     }
 
 
-    // /*
-    //  * Getting the score of the board.
-    //  */
-    // float score() {
-    //     return _score;
-    // }
-
     /*
      * Getting the step that created the move.
      */
