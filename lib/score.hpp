@@ -19,6 +19,48 @@ using namespace std;
 #define loop(_var, _start, _end) for(int _var=_start; _var<_end; _var++)
 #define loopx(_var, _start, _end, _step) for(int _var=_start; _var<_end; _var+=_step)
 
+
+/* 
+ * ******************************************************************************
+ * WEIGHTS
+ * ******************************************************************************
+ */
+
+const short _total = 21;
+
+// Ist Winner
+// NEW3
+// double _weights[_total] = {
+//     100.0, 10000.0, -100.0, -10000.0,
+//     20.0, -30.0, -20.0,
+//     500.0, -1000.0, 250.0, -500.0,
+//     100.0, 25.0, 50.0,
+//     -100.0, -25.0, -50.0,
+//     50.0, 1000.0, -75.0, -2000.0
+// };
+
+// BEST WINNER
+// NEW4
+// double _weights[_total] = {
+//     100, 10000, -92.738, -10000,
+//     11.8009, -28.7704, -20.7874,
+//     500, -1000, 121.729, -500, 
+//     86.6925, 19.8396, 46.1838,
+//     -103.635, -25, -49.5967, 
+//     45.7681, 1000, -75.3495, -2000,
+// }; 
+
+// NEW5
+double _weights[_total] = { 
+    100, 10000, -110.984, -10000, 
+    9.61959, -28.7086, -24.8867, 
+    500, -1000, 109.161, -661.952, 
+    85.6391, 19.1893, 42.5293, 
+    -103.635, -25, -50.4902, 
+    54.7577, 1000, -77.2115, -2000
+};
+
+
 /* 
  * ******************************************************************************
  * FEATURES
@@ -40,7 +82,7 @@ using namespace std;
  * F10: No. of self soldiers in contact with self townhall
  * F11: No. of enemy soldiers in contact with enemy townhall
  */
-void _soldier_interactions(Board* _b, short* _features) {
+void _soldier_interactions(Board* _b, double* _features) {
 
     // Containers
     short ss = 0, se = 0, ee = 0, sst = 0, set = 0, est = 0, eet = 0;
@@ -170,7 +212,7 @@ void _soldier_interactions(Board* _b, short* _features) {
 
     // Assigning the features, values
     _features[4] = ss;
-    _features[5] = se;    // These values are counted twice, doesn't matter much
+    _features[5] = se;
     _features[6] = ee;
     _features[7] = set;
     _features[8] = est;
@@ -196,7 +238,7 @@ void _soldier_interactions(Board* _b, short* _features) {
  * F20: No. of self-soldiers captured by enemy cannon-shots (enemy)
  * F21: No. of self-town captured by enemy cannon-shots (enemy)
  */
-void _cannon_interactions(Board* _b, short* _features) {
+void _cannon_interactions(Board* _b, double* _features) {
 
     // Containers
     short vsc=0, hsc=0, dsc=0, vec=0, hec=0, dec=0, ecs=0, etcs=0, sce=0, stce=0;
@@ -493,6 +535,12 @@ void _cannon_interactions(Board* _b, short* _features) {
 }
 
 /*
+ * ************************************************************
+ * SCORING FUNCTION
+ * ************************************************************
+ */
+
+/*
  * Scoring Mechanism.
  * 
  * Most Basic Features.
@@ -508,22 +556,36 @@ double Board::score() {
         return _score;
     
     // Calculating, if not set.
-    double _sc = 0; short *_f = new short[21]();
+    double _sc = 0;
+    // Initialising the features
+    _f = new double[_total]();
+    
     // Innate features
     _f[0] = ssc, _f[1] = stc, _f[2] = esc, _f[3] = etc;
     // Calculating the soldier features
     _soldier_interactions(this, _f);
     // Calculating the cannon features
     _cannon_interactions(this, _f);
-    // Printing the board and features
-    cout << "___________________________\n";
-    _print();
-    for(int i=0; i<21; i++) cout << "F" << i+1 << ": " << _f[i] << "\n";
-    cout << "___________________________\n";
+    
+    // Calculating the score
+    loop(i, 0, _total) {
+        _sc += _weights[i]*_f[i];
+    }
+    
     // Setting the score
     set_score(_sc);
     // Returning the score
     return _score;
+}
+
+/*
+ * Getting the board features.
+ */
+double* Board::features() {
+    // Checking if the score is set
+    if(!score_set) throw new runtime_error("SCORE NOT SET. [Board::features]");
+    // Returning if set
+    return _f;
 }
 
 #endif

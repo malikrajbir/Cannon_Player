@@ -1,6 +1,7 @@
 // Main runner for game.
 
 #include <iostream>
+#include <fstream>
 #include <time.h>
 
 #include "board.hpp"
@@ -10,6 +11,7 @@
 
 using namespace std;
 
+ofstream _wts;
 
 /*
  * Starting the game, setting up variables and main board.
@@ -28,6 +30,7 @@ Board start() {
     // Initialising the board class
     Board::_init(_r, _c);
 
+    // Minimum Townhalls, for game to finish
     min_townhalls = Board::shape(0) / 2 - 2;
 
     // Return the board
@@ -52,9 +55,13 @@ void play(Board& _game) {
         // Our turn
         if(step) {
             // Call Mini-Max
-            minimax(_game, 2);
+            minimax(_game, 5);
             // Print the game step
             cout << _game.step() << "\n";
+            // Writing the game weights
+            _wts << "{ ";
+            loop(i, 0, _total) _wts << flush << _weights[i] << ", ";
+            _wts << "}" << endl;
         }
         // Other player's turn
         else {
@@ -78,6 +85,12 @@ void play(Board& _game) {
 
 // MAIN
 int main(int argc, char const *argv[]) {
+    // Opening writeup file
+    _wts = ofstream(argv[1]);
+    // Printing the starting weights
+    cerr << "Constant Starting Weights.\n";
+    loop(i, 0, _total) cerr << _weights[i] << " ";
+    cerr << "\n";
     // Read the game & set the board
     Board _game = start();
     // Play the game

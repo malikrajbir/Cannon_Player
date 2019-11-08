@@ -130,6 +130,9 @@ double __max(Board& _b, short _depth, pdd _ab) {
  */
 void minimax(Board& _b, short _depth) {
 
+    // Learning component (OLD SCORE & FEATURES)
+    double _old = _b.score(), _new, *_oldf = _b.features(), *_newf;
+
     // Working with the base-case (current-board)
     // Setting _ab
     pdd _ab = pdd(-INF, INF);
@@ -151,7 +154,16 @@ void minimax(Board& _b, short _depth) {
         // Minimum more than lower bound, update
         if(_v > _ab._a) _ab._a = _v;
     }
-    // Run complete. Return.
+    // Run complete.
+
+    // Learning component (UPDATING WITH NEW SCORE)
+    _new = _b.score(); _newf = _b.features();
+    // If no change, return
+    if(_new == _old) return;
+    // Updating weights
+    loop(i, 0, _total) {
+        _weights[i] = _weights[i]*(1 + (_newf[i]-_oldf[i])*(_new-_old)/(_new+_old));
+    }
 }
 
 

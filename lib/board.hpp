@@ -50,6 +50,9 @@ private:
     // Score of the board
     double _score;
 
+    // Board features, used for calculating score and learning weights
+    double *_f;
+
     // FLAG: Keeping the check on score.
     bool score_set;
 
@@ -284,6 +287,12 @@ public:
      * Defined in "score.hpp".
      */
     double score();
+
+    /*
+     * Getting the features of the board.
+     * NOTE: This must be called only after the score has been set, i.e. the features too. Otherwise NULL shall be returned.
+     */
+    double* features();
 
 
 // ------------------------------------------------------------
