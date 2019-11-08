@@ -127,11 +127,12 @@ double __max(Board& _b, short _depth, pdd _ab) {
  * 
  * @param _b (Board&) : The current board state. (It is updated to the latest state at the end of the algorithm)
  * @param _depth (short) : Depth of the complete search.
+ * @param _learn (bool) : Whether the weights are to be trained
  */
-void minimax(Board& _b, short _depth) {
+void minimax(Board& _b, short _depth, bool _learn) {
 
     // Learning component (OLD SCORE & FEATURES)
-    double _old = _b.score(), _new, *_oldf = _b.features(), *_newf;
+    double _old = _b.score(), _new, *_oldf = _b.features();
 
     // Working with the base-case (current-board)
     // Setting _ab
@@ -154,15 +155,19 @@ void minimax(Board& _b, short _depth) {
         // Minimum more than lower bound, update
         if(_v > _ab._a) _ab._a = _v;
     }
-    // Run complete.
+    // Run complete. Return if not learning.
+    if(!_learn) return;
 
     // Learning component (UPDATING WITH NEW SCORE)
-    _new = _b.score(); _newf = _b.features();
+    _new = _v;
     // If no change, return
-    if(_new == _old) return;
+    if(_new == _old || _new == -INF) return;
     // Updating weights
     loop(i, 0, _total) {
-        _weights[i] = _weights[i]*(1 + (_oldf[i])*(_new-_old)/(100*(_new+_old)));
+        if(_weights[i]*_oldf[i] > 0 && _new > _old)
+            _weights[i] = _weights[i]*(1 + 2*(_oldf[i])*(_new-_old)/(_new+_old));
+        if(_weights[i]*_oldf[i] < 0 && _new < _old)
+            _weights[i] = _weights[i]*(1 - 2*(_oldf[i])*(_new-_old)/(_new+_old));
     }
 }
 

@@ -11,7 +11,10 @@
 
 using namespace std;
 
+// Writing the learned weights
 ofstream _wts;
+// State of the game weights, dynamic:learner, static:tester
+bool _learn;
 
 /*
  * Starting the game, setting up variables and main board.
@@ -55,13 +58,15 @@ void play(Board& _game) {
         // Our turn
         if(step) {
             // Call Mini-Max
-            minimax(_game, 5);
+            minimax(_game, 5, _learn);
             // Print the game step
             cout << _game.step() << "\n";
             // Writing the game weights
-            _wts << "{ ";
-            loop(i, 0, _total) _wts << flush << _weights[i] << ", ";
-            _wts << "}" << endl;
+            if(_learn) {
+                _wts << "{ ";
+                loop(i, 0, _total) _wts << flush << _weights[i] << ", ";
+                _wts << "}" << endl;
+            }
         }
         // Other player's turn
         else {
@@ -85,12 +90,13 @@ void play(Board& _game) {
 
 // MAIN
 int main(int argc, char const *argv[]) {
-    // Opening writeup file
-    _wts = ofstream(argv[1]);
+    // Checking the state of the game.
+    _learn = (argv[1][0] == '1');
+    // Opening a file if learning
+    if(_learn) _wts = ofstream("weights.txt");
     // Printing the starting weights
-    cerr << "Constant Starting Weights.\n";
+    cerr << "Starting Weights.\n";
     loop(i, 0, _total) {
-        _weights[i] *= _norm[i];
         cerr << _weights[i] << " ";
     }
     cerr << "\n";
