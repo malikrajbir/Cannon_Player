@@ -25,8 +25,6 @@ using namespace std;
 double __min(Board& _b, short _depth, pdd _ab);
 double __max(Board& _b, short _depth, pdd _ab);
 
-short min_townhalls;
-
 /*
  * MIN STEP
  * The minimum (adverserial) step of the algorithm.
@@ -155,6 +153,12 @@ void minimax(Board& _b, short _depth, bool _learn) {
         // Minimum more than lower bound, update
         if(_v > _ab._a) _ab._a = _v;
     }
+
+    // ofstream neural;
+    // neural.open("myfile.txt", std::ios::app);
+    // for(int i=0;i<_total;i++) neural << _oldf[i] << " ";
+    // neural << _v << "\n";
+
     // Run complete. Return if not learning.
     if(!_learn) return;
 
@@ -164,10 +168,7 @@ void minimax(Board& _b, short _depth, bool _learn) {
     if(_new == _old || _new == -INF) return;
     // Updating weights
     loop(i, 0, _total) {
-        if(_weights[i]*_oldf[i] > 0 && _new > _old)
-            _weights[i] = _weights[i]*(1 + 2*(_oldf[i])*(_new-_old)/(_new+_old));
-        if(_weights[i]*_oldf[i] < 0 && _new < _old)
-            _weights[i] = _weights[i]*(1 - 2*(_oldf[i])*(_new-_old)/(_new+_old));
+        _weights[i] = _weights[i]*(1 + 0.4 * _oldf[i] * (_new - _old) / max(abs(_new), abs(_old)));
     }
 }
 

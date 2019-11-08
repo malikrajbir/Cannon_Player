@@ -58,12 +58,12 @@ const short _total = 21;
 // };
 
 double _weights[_total] = { 
-    60, 30000, -250, -50000, 
-    10, -45, -15, 
-    250, -2500, 40, -50, 
-    65, 20, 40, 
-    -90, -50, -50, 
-    20, 750, -100, -1000, 
+    5000, 50000, -5000, -50000, 
+    800, -1000, -800, 
+    2500, -2500, 1200, -1200, 
+    2000, 400, 1800, 
+    -2000, -400, -1800, 
+    1500, 1200, -1500, -1200
 };
 
 // Feature Normaliser
@@ -575,6 +575,43 @@ double Board::score() {
     double _sc = 0;
     // Initialising the features
     _f = new double[_total]();
+
+    // If this is ending board position
+    _sc = ssc; bool flag = 0;
+
+    if(etc == min_townhalls) {
+        if(stc == min_townhalls+2) _sc += 50000;
+        else _sc += 30000;
+        flag = 1;
+    }
+    else if(stc == min_townhalls) {
+        if(etc == min_townhalls+2) _sc -= 50000;
+        else _sc -= 30000;
+        flag = 1;
+    }
+    else if(esc == 0) {
+        if(stc == min_townhalls+2)
+            _sc += ((etc == min_townhalls+1) ? 50000 : 30000);
+        else
+            _sc += ((etc == min_townhalls+1) ? 30000 : 10000);
+        flag = 1;
+    }
+    else if(ssc == 0) {
+        if(etc == min_townhalls+2)
+            _sc -= ((stc == min_townhalls+1) ? 50000 : 30000);
+        else
+            _sc -= ((stc == min_townhalls+1) ? 30000 : 10000);
+        flag = 1;
+    }
+
+    if(flag) {
+        // Setting the score
+        set_score(_sc);
+        // Returning the score
+        return _score;
+    }
+
+    _sc = 0;
     
     // Innate features
     _f[0] = ssc, _f[1] = stc, _f[2] = esc, _f[3] = etc;

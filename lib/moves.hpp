@@ -22,6 +22,8 @@ using namespace std;
 // Random engine for randomized shuffles
 auto __rand = default_random_engine {};
 
+short min_townhalls;
+
 
 /*
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
