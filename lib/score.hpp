@@ -63,7 +63,6 @@ void _soldier_interactions(Board* _b, short* _features) {
         // Checking on the left
         if(_p.second-1 >= 0) {
             switch(_b->board()[_p.first][_p.second-1]) {
-                case 1: ss++; break;
                 case -1: se++; break;
                 case 2: sst++; break;
                 case -2: set++; break;
@@ -116,7 +115,6 @@ void _soldier_interactions(Board* _b, short* _features) {
         // Checking on the right
         if(_p.second+1 < Board::shape(0)) {
             switch(_b->board()[_p.first][_p.second+1]) {
-                case 1: se++; break;
                 case -1: ee++; break;
                 case 2: est++; break;
                 case -2: eet++; break;
@@ -126,8 +124,6 @@ void _soldier_interactions(Board* _b, short* _features) {
         // Checking on the left
         if(_p.second-1 >= 0) {
             switch(_b->board()[_p.first][_p.second-1]) {
-                case 1: se++; break;
-                case -1: ee++; break;
                 case 2: est++; break;
                 case -2: eet++; break;
                 default: break;
@@ -149,7 +145,6 @@ void _soldier_interactions(Board* _b, short* _features) {
         if(_p.first-_move < Board::shape(1) && _p.first-_move >= 0) {
             // Checking on the front
             switch(_b->board()[_p.first-_move][_p.second]) {
-                case 1: se++; break;
                 case -1: ee++; break;
                 case 2: est++; break;
                 default: break;
@@ -157,7 +152,6 @@ void _soldier_interactions(Board* _b, short* _features) {
             // Checking on the front-left
             if(_p.second+1 < Board::shape(0)) {
                 switch(_b->board()[_p.first-_move][_p.second+1]) {
-                    case 1: se++; break;
                     case -1: ee++; break;
                     case 2: est++; break;
                     default: break;
@@ -166,7 +160,6 @@ void _soldier_interactions(Board* _b, short* _features) {
             // Checking on the front-right
             if(_p.second-1 >= 0) {
                 switch(_b->board()[_p.first-_move][_p.second-1]) {
-                    case 1: se++; break;
                     case -1: ee++; break;
                     case 2: est++; break;
                     default: break;
@@ -176,9 +169,9 @@ void _soldier_interactions(Board* _b, short* _features) {
     }
 
     // Assigning the features, values
-    _features[4] = ss/2;
-    _features[5] = se/2;    // These values are counted twice, doesn't matter much
-    _features[6] = ee/2;
+    _features[4] = ss;
+    _features[5] = se;    // These values are counted twice, doesn't matter much
+    _features[6] = ee;
     _features[7] = set;
     _features[8] = est;
     _features[9] = sst;
