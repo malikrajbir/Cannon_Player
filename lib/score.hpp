@@ -39,7 +39,7 @@ const short _total = 21;
 //     50.0, 1000.0, -75.0, -2000.0
 // };
 
-// BEST WINNER
+
 // NEW4
 // double _weights[_total] = {
 //     100, 10000, -92.738, -10000,
@@ -51,6 +51,7 @@ const short _total = 21;
 // }; 
 
 // NEW5
+// BEST WINNER
 double _weights[_total] = { 
     100, 10000, -110.984, -10000, 
     9.61959, -28.7086, -24.8867, 
@@ -58,6 +59,16 @@ double _weights[_total] = {
     85.6391, 19.1893, 42.5293, 
     -103.635, -25, -50.4902, 
     54.7577, 1000, -77.2115, -2000
+};
+
+// Feature Normaliser
+double _norm[_total] = {
+    15, 5, 15, 5,
+    75, 75, 75,
+    25, 25, 25, 25,
+    13, 13, 13,
+    13, 13, 13,
+    52, 5, 52, 5
 };
 
 
@@ -569,6 +580,7 @@ double Board::score() {
     
     // Calculating the score
     loop(i, 0, _total) {
+        _f[i] /= _norm[i];
         _sc += _weights[i]*_f[i];
     }
     

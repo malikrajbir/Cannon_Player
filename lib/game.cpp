@@ -89,7 +89,10 @@ int main(int argc, char const *argv[]) {
     _wts = ofstream(argv[1]);
     // Printing the starting weights
     cerr << "Constant Starting Weights.\n";
-    loop(i, 0, _total) cerr << _weights[i] << " ";
+    loop(i, 0, _total) {
+        _weights[i] *= _norm[i];
+        cerr << _weights[i] << " ";
+    }
     cerr << "\n";
     // Read the game & set the board
     Board _game = start();

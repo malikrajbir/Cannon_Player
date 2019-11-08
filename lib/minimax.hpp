@@ -162,7 +162,7 @@ void minimax(Board& _b, short _depth) {
     if(_new == _old) return;
     // Updating weights
     loop(i, 0, _total) {
-        _weights[i] = _weights[i]*(1 + (_newf[i]-_oldf[i])*(_new-_old)/(_new+_old));
+        _weights[i] = _weights[i]*(1 + (_oldf[i])*(_new-_old)/(100*(_new+_old)));
     }
 }
 
