@@ -22,8 +22,8 @@ using namespace std;
 
 // Function Declaration
 
-double __min(Board& _b, short _depth, pdd _ab);
-double __max(Board& _b, short _depth, pdd _ab);
+double __min(Board& _b, short _depth, pdd _ab, time_t st, double cutoff_time);
+double __max(Board& _b, short _depth, pdd _ab, time_t st, double cutoff_time);
 
 /*
  * MIN STEP
@@ -33,7 +33,7 @@ double __max(Board& _b, short _depth, pdd _ab);
  * @param _depth (short) : Depth of the search left.
  * @param _ab (pair<short, short>) : Carriers for pruning (alpha-beta)
  */
-double __min(Board& _b, short _depth, pdd _ab) {
+double __min(Board& _b, short _depth, pdd _ab, time_t _st, double cutoff_time) {
 
     // Base case scoring
     if(_b.count(2) == min_townhalls || _b.count(-2) == min_townhalls || _b.count(1) == 0 || _b.count(-1) == 0)
@@ -58,7 +58,8 @@ double __min(Board& _b, short _depth, pdd _ab) {
     double _v = INF, _max;
     loop(i, 0, moves.size()) {
         // Getting the minimum-value in the next state
-        _max = __max(moves[i], _depth-1, _ab);
+        _max = __max(moves[i], _depth-1, _ab, _st, cutoff_time);
+        if(time(NULL) - _st > cutoff_time) break;
         // Weaker maximum, update
         if(_max < _v) _v = _max;
         // Maximum less than possible, return (what?)
@@ -80,7 +81,7 @@ double __min(Board& _b, short _depth, pdd _ab) {
  * @param _depth (short) : Depth of the search left.
  * @param _ab (pair<short, short>) : Carriers for pruning (alpha-beta)
  */
-double __max(Board& _b, short _depth, pdd _ab) {
+double __max(Board& _b, short _depth, pdd _ab, time_t _st, double cutoff_time) {
 
     // Base case scoring
     if(_b.count(2) == min_townhalls || _b.count(-2) == min_townhalls || _b.count(1) == 0 || _b.count(-1) == 0)
@@ -105,7 +106,8 @@ double __max(Board& _b, short _depth, pdd _ab) {
     double _v = -INF, _min;
     loop(i, 0, moves.size()) {
         // Getting the minimum-value in the next state
-        _min = __min(moves[i], _depth-1, _ab);
+        _min = __min(moves[i], _depth-1, _ab, _st, cutoff_time);
+        if(time(NULL) - _st > cutoff_time) break;
         // Better minimum, update
         if(_min > _v) _v = _min;
         // Minimum more than possible, return (what?)
@@ -127,7 +129,7 @@ double __max(Board& _b, short _depth, pdd _ab) {
  * @param _depth (short) : Depth of the complete search.
  * @param _learn (bool) : Whether the weights are to be trained
  */
-void minimax(Board& _b, short _depth, bool _learn) {
+void minimax(Board& _b, short _depth, bool _learn, double cutoff_time) {
 
     // Learning component (OLD SCORE & FEATURES)
     double _old = _b.score(), _new, *_oldf = _b.features();
@@ -140,12 +142,21 @@ void minimax(Board& _b, short _depth, bool _learn) {
     // Base-case
     if(moves.empty()) return;
 
+    time_t _st = time(NULL);
+    bool isComplete = true;
+
     // Running MAX on present board
     double _v = -INF, _min;
     loop(i, 0, moves.size()) {
         // Getting the minimum-value in the next state
-        _min = __min(moves[i], _depth-1, _ab);
+        _min = __min(moves[i], _depth, _ab, _st, cutoff_time);
         // Better minimum, update
+
+        if(time(NULL) - _st > cutoff_time) {
+            isComplete = false;
+            break;
+        }
+
         if(_min > _v) {
             _b = moves[i];
             _v = _min;
@@ -154,10 +165,20 @@ void minimax(Board& _b, short _depth, bool _learn) {
         if(_v > _ab._a) _ab._a = _v;
     }
 
-    // ofstream neural;
-    // neural.open("myfile.txt", std::ios::app);
-    // for(int i=0;i<_total;i++) neural << _oldf[i] << " ";
-    // neural << _v << "\n";
+    if(!isComplete) {
+        _v = -INF; _ab = pdd(-INF, INF);
+        loop(i, 0, moves.size()) {
+            // Getting the minimum-value in the next state
+            _min = __min(moves[i], _depth-1, _ab, _st, INF);
+            // Better minimum, update
+            if(_min > _v) {
+                _b = moves[i];
+                _v = _min;
+            }
+            // Minimum more than lower bound, update
+            if(_v > _ab._a) _ab._a = _v;
+        }
+    }
 
     // Run complete. Return if not learning.
     if(!_learn) return;
@@ -167,8 +188,8 @@ void minimax(Board& _b, short _depth, bool _learn) {
     // If no change, return
     if(_new == _old || _new == -INF) return;
     // Updating weights
-    loop(i, 0, _total) {
-        _weights[i] = _weights[i]*(1 + 0.4 * _oldf[i] * (_new - _old) / max(abs(_new), abs(_old)));
+    loop(i, 4, _total) {
+        _weights[i] = _weights[i]*(1 + 0.05 * _oldf[i] * (_new - _old) / max(abs(_new), abs(_old)));
     }
 }
 
